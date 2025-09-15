@@ -1,0 +1,13 @@
+streamlit==1.29.0
+streamlit-chat==0.1.1
+streamlit-option-menu==0.3.6
+pandas==2.1.4
+python-dotenv==1.0.0
+requests==2.31.0
+langdetect==1.0.9
+googletrans==4.0.0rc1
+google-generativeai==0.8.3
+pydantic==2.5.0
+pydantic-settings==2.1.0
+cachetools==5.3.2
+loguru==0.7.2

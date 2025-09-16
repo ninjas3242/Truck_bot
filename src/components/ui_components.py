@@ -2,8 +2,6 @@
 UI Components for the chatbot interface
 """
 import streamlit as st
-from streamlit_option_menu import option_menu
-from streamlit_chat import message
 from typing import List, Dict, Any, Optional
 import time
 from functools import lru_cache

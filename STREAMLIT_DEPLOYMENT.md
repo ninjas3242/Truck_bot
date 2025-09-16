@@ -32,6 +32,9 @@ GEMINI_API_KEY = "YOUR_ACTUAL_GEMINI_API_KEY_HERE"
 - ✅ Fallback to environment variables for local development
 - ✅ `.gitignore` updated to exclude secrets
 - ✅ Local secrets file for development (`.streamlit/secrets.toml`)
+- ✅ Removed problematic dependencies (streamlit-chat, streamlit-option-menu, loguru, googletrans, langdetect)
+- ✅ Simplified to core dependencies only
+- ✅ Fixed dependency conflicts for Streamlit Cloud
 
 ## 🔧 Local Development
 

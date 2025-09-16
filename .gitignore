@@ -122,8 +122,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Streamlit
-.streamlit/
+# Streamlit secrets (keep config.toml but ignore secrets.toml)
+.streamlit/secrets.toml
 
 # Logs
 logs/

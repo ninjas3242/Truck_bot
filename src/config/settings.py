@@ -3,13 +3,22 @@ Configuration settings for the Truck Sales Chatbot
 """
 import os
 from typing import Dict, List
-from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from pydantic import Field
 from functools import lru_cache
 
-# Load environment variables
-load_dotenv()
+# Streamlit secrets support
+try:
+    import streamlit as st
+    USE_STREAMLIT_SECRETS = True
+except ImportError:
+    USE_STREAMLIT_SECRETS = False
+    # Fallback to dotenv for local development
+    try:
+        from dotenv import load_dotenv
+        load_dotenv()
+    except ImportError:
+        pass
 
 class Settings(BaseSettings):
     """Application settings with validation"""
@@ -24,7 +33,19 @@ class Settings(BaseSettings):
     environment: str = Field(default="development", env="ENVIRONMENT")
     
     # API Keys
-    gemini_api_key: str = Field(env="GEMINI_API_KEY")
+    gemini_api_key: str = Field(default="")
+    
+    def __init__(self, **kwargs):
+        # Get API key from Streamlit secrets or environment
+        if USE_STREAMLIT_SECRETS and hasattr(st, 'secrets'):
+            try:
+                kwargs['gemini_api_key'] = st.secrets["GEMINI_API_KEY"]
+            except KeyError:
+                pass
+        else:
+            kwargs['gemini_api_key'] = os.getenv("GEMINI_API_KEY", "")
+        
+        super().__init__(**kwargs)
     
     # AI Configuration
     use_ai: bool = True

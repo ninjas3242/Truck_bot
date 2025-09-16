@@ -43,8 +43,8 @@ class AIService:
             response = self.model.generate_content(
                 prompt,
                 generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=settings.max_tokens,
-                    temperature=settings.temperature,
+                    max_output_tokens=2000,
+                    temperature=0.7,
                 )
             )
             
@@ -64,16 +64,14 @@ class AIService:
         trucks_data = context.get('trucks_data', [])
         company_data = context.get('company_data', [])
         
-        # Build truck inventory context
-        truck_context = "AVAILABLE TRUCKS:\n"
-        for truck in trucks_data:
+        # Build truck inventory context (simplified)
+        truck_context = "TRUCKS:\n"
+        for truck in trucks_data[:10]:  # Limit to first 10 trucks
             name = truck.get('Name', truck.get('name', 'Unknown'))
             condition = truck.get('condition', truck.get('Condition', 'Unknown'))
             horses = truck.get('Horses', truck.get('horses', truck.get('capacity', 'N/A')))
-            brand = truck.get('Brand', 'STX')
-            year = truck.get('Year', 'N/A')
             
-            truck_context += f"- {name} ({brand} {year}, {horses} horses, {condition}) - Contact for pricing\n"
+            truck_context += f"- {name} ({horses} horses, {condition})\n"
         
         # Build company context
         company_context = "COMPANY INFORMATION:\n"
@@ -90,27 +88,21 @@ class AIService:
             "nl": "Antwoord in het Nederlands"
         }
         
-        # Main prompt
+        # Main prompt (simplified)
         prompt = f"""
-        You are an AI assistant for Stephex Horse Trucks, a premium horse truck dealership.
+        You are Stephex Horse Trucks AI assistant.
         
         {truck_context}
         
-        {company_context}
-        
-        INSTRUCTIONS:
+        Rules:
         - {language_instructions.get(language, "Respond in English")}
-        - Use ONLY the truck and company data provided above to answer questions
-        - Be helpful and conversational
-        - Show actual truck details when asked about trucks
-        - For pricing: Always say "Contact us for a personalized quote" - no prices are listed
-        - Provide contact information when asked about pricing, contact, or test drives
-        - Answer directly without asking qualifying questions
-        - Include truck specifications, capacity, and features when showing trucks
+        - Show truck details from the list above
+        - For pricing say "Contact us for quote"
+        - Be helpful and direct
         
-        USER QUESTION: "{user_message}"
+        Question: {user_message}
         
-        ANSWER:
+        Answer:
         """
         
         return prompt

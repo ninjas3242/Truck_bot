@@ -73,11 +73,11 @@ class AIService:
             
             truck_context += f"- {name} ({horses} horses, {condition})\n"
         
-        # Build company context
-        company_context = "COMPANY INFORMATION:\n"
+        # Build contact context
+        contact_context = "CONTACT INFO:\n"
         for item in company_data:
             if item.get('Category') == 'Contact':
-                company_context += f"- {item['Title']}: {item['Description']}\n"
+                contact_context += f"- {item['Title']}: {item['Description']}\n"
         
         # Language-specific instructions
         language_instructions = {
@@ -94,10 +94,13 @@ class AIService:
         
         {truck_context}
         
+        {contact_context}
+        
         Rules:
         - {language_instructions.get(language, "Respond in English")}
         - Show truck details from the list above
         - For pricing say "Contact us for quote"
+        - For contact requests, provide contact details above
         - Be helpful and direct
         
         Question: {user_message}

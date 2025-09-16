@@ -14,10 +14,21 @@ class ChatbotEngine:
         self.company_df = self._load_company_data()
     
     def _load_trucks_data(self):
-        """Load truck data from CSV"""
+        """Load truck data from CSV files"""
         try:
-            csv_path = Path(__file__).parent.parent.parent / "data" / "trucks.csv"
-            return pd.read_csv(csv_path)
+            # Load new trucks
+            new_trucks_path = Path(__file__).parent.parent.parent / "data" / "new_trucks.csv"
+            new_trucks = pd.read_csv(new_trucks_path)
+            new_trucks['condition'] = 'New'
+            
+            # Load used trucks  
+            used_trucks_path = Path(__file__).parent.parent.parent / "data" / "used_trucks.csv"
+            used_trucks = pd.read_csv(used_trucks_path)
+            used_trucks['condition'] = 'Used'
+            
+            # Combine both datasets
+            all_trucks = pd.concat([new_trucks, used_trucks], ignore_index=True)
+            return all_trucks
         except Exception as e:
             print(f"Error loading truck data: {e}")
             return pd.DataFrame()

@@ -67,7 +67,13 @@ class AIService:
         # Build truck inventory context
         truck_context = "AVAILABLE TRUCKS:\n"
         for truck in trucks_data:
-            truck_context += f"- {truck['name']} (Price: €{truck['price']:,}, Capacity: {truck['capacity']}, Condition: {truck['condition']}) - {truck['url']}\n"
+            name = truck.get('Name', truck.get('name', 'Unknown'))
+            condition = truck.get('condition', truck.get('Condition', 'Unknown'))
+            horses = truck.get('Horses', truck.get('horses', truck.get('capacity', 'N/A')))
+            brand = truck.get('Brand', 'STX')
+            year = truck.get('Year', 'N/A')
+            
+            truck_context += f"- {name} ({brand} {year}, {horses} horses, {condition}) - Contact for pricing\n"
         
         # Build company context
         company_context = "COMPANY INFORMATION:\n"
@@ -97,9 +103,10 @@ class AIService:
         - Use ONLY the truck and company data provided above to answer questions
         - Be helpful and conversational
         - Show actual truck details when asked about trucks
-        - Provide contact information when asked about contact/office/test drives
+        - For pricing: Always say "Contact us for a personalized quote" - no prices are listed
+        - Provide contact information when asked about pricing, contact, or test drives
         - Answer directly without asking qualifying questions
-        - Include prices, capacity, and links when showing trucks
+        - Include truck specifications, capacity, and features when showing trucks
         
         USER QUESTION: "{user_message}"
         

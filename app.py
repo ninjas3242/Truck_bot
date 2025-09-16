@@ -174,35 +174,24 @@ def main():
     # Footer with enhanced info
     ui.render_footer()
     
-    # Add floating action button effect
+    # Fix for arrow symbol display issues
     st.markdown("""
     <style>
-    .floating-help {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border-radius: 50%;
-        width: 60px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        cursor: pointer;
-        animation: pulse 2s infinite;
-        z-index: 1000;
+    /* Hide problematic Material Design icons */
+    .material-icons, .material-symbols-outlined {
+        display: none !important;
     }
     
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.05); }
-        100% { transform: scale(1); }
+    /* Fix for keyboard_double_arrow_right display */
+    [data-testid*="arrow"], [class*="arrow"], [class*="keyboard"] {
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    /* Replace arrow symbols with proper Unicode */
+    .stButton button::after {
+        content: '' !important;
     }
     </style>
-    <div class="floating-help" title="Need help? Just ask!">💬</div>
     """, unsafe_allow_html=True)
 
 def initialize_session_state():

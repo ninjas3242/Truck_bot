@@ -104,20 +104,54 @@ class UIComponents:
             "contact": language_manager.get_text("contact", language)
         }
         
+        # Language-specific queries
+        queries = {
+            "en": {
+                "new_trucks": "Show me new trucks available",
+                "used_trucks": "Show me used trucks available", 
+                "financing": "Tell me about financing options",
+                "contact": "I want to contact you"
+            },
+            "es": {
+                "new_trucks": "Muéstrame camiones nuevos disponibles",
+                "used_trucks": "Muéstrame camiones usados disponibles",
+                "financing": "Cuéntame sobre las opciones de financiamiento", 
+                "contact": "Quiero contactarte"
+            },
+            "fr": {
+                "new_trucks": "Montrez-moi les nouveaux camions disponibles",
+                "used_trucks": "Montrez-moi les camions d'occasion disponibles",
+                "financing": "Parlez-moi des options de financement",
+                "contact": "Je veux vous contacter"
+            },
+            "it": {
+                "new_trucks": "Mostrami i camion nuovi disponibili",
+                "used_trucks": "Mostrami i camion usati disponibili", 
+                "financing": "Dimmi delle opzioni di finanziamento",
+                "contact": "Voglio contattarti"
+            },
+            "nl": {
+                "new_trucks": "Toon me nieuwe beschikbare vrachtwagens",
+                "used_trucks": "Toon me gebruikte beschikbare vrachtwagens",
+                "financing": "Vertel me over financieringsopties",
+                "contact": "Ik wil contact met je opnemen"
+            }
+        }
+        
         selected_action = None
         cols = st.sidebar.columns(2)
         
         with cols[0]:
             if st.button(quick_actions["new_trucks"], key="new_trucks_btn"):
-                selected_action = "Show me new trucks available"
+                selected_action = queries.get(language, queries["en"])["new_trucks"]
             if st.button(quick_actions["financing"], key="financing_btn"):
-                selected_action = "Tell me about financing options"
+                selected_action = queries.get(language, queries["en"])["financing"]
         
         with cols[1]:
             if st.button(quick_actions["used_trucks"], key="used_trucks_btn"):
-                selected_action = "Show me used trucks available"
+                selected_action = queries.get(language, queries["en"])["used_trucks"]
             if st.button(quick_actions["contact"], key="contact_btn"):
-                selected_action = "I want to contact you"
+                selected_action = queries.get(language, queries["en"])["contact"]
         
         return selected_action
     

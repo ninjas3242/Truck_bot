@@ -75,6 +75,15 @@ class AIService:
             if item.get('Category') == 'Contact':
                 company_context += f"- {item['Title']}: {item['Description']}\n"
         
+        # Language-specific instructions
+        language_instructions = {
+            "en": "Respond in English",
+            "es": "Responde en español",
+            "fr": "Répondez en français", 
+            "it": "Rispondi in italiano",
+            "nl": "Antwoord in het Nederlands"
+        }
+        
         # Main prompt
         prompt = f"""
         You are an AI assistant for Stephex Horse Trucks, a premium horse truck dealership.
@@ -84,6 +93,7 @@ class AIService:
         {company_context}
         
         INSTRUCTIONS:
+        - {language_instructions.get(language, "Respond in English")}
         - Use ONLY the truck and company data provided above to answer questions
         - Be helpful and conversational
         - Show actual truck details when asked about trucks

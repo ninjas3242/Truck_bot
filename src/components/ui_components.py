@@ -75,17 +75,26 @@ class UIComponents:
         """, unsafe_allow_html=True)
     
     @staticmethod
-    def render_language_selector() -> str:
-        """Render language selector and return selected language"""
+    def render_language_selector(auto_detected: str = 'en') -> str:
+        """Render language selector with auto-detection and return selected language"""
         st.sidebar.markdown("""
         <div class="language-selector">
             <h3 style="color: black;">🌐 Language / Idioma</h3>
         </div>
         """, unsafe_allow_html=True)
         
+        # Find index of auto-detected language
+        languages = list(SUPPORTED_LANGUAGES.keys())
+        default_index = languages.index(auto_detected) if auto_detected in languages else 0
+        
+        # Show auto-detection info
+        if auto_detected != 'en':
+            st.sidebar.info(f"🌍 Auto-detected: {SUPPORTED_LANGUAGES.get(auto_detected, 'English')}")
+        
         selected_language = st.sidebar.selectbox(
             "Select Language:",
-            options=list(SUPPORTED_LANGUAGES.keys()),
+            options=languages,
+            index=default_index,
             format_func=lambda x: f"{SUPPORTED_LANGUAGES[x]} ({x.upper()})",
             key="language_selector"
         )

@@ -58,8 +58,9 @@ def main():
     
     # Sidebar components
     with st.sidebar:
-        # Language selector
-        selected_language = ui.render_language_selector()
+        # Language selector with auto-detection
+        auto_detected = st.session_state.get('auto_detected_language', 'en')
+        selected_language = ui.render_language_selector(auto_detected)
         
         # Quick actions
         quick_action = ui.render_quick_actions(selected_language)
@@ -172,6 +173,17 @@ def initialize_session_state():
         st.session_state.chat_history = []
         st.session_state.user_context = {}
         st.session_state.session_id = f"session_{int(time.time())}"
+        
+        # Auto-detect language from IP
+        try:
+            from src.utils.geolocation import detect_language_from_ip
+            detected_language = detect_language_from_ip()
+            st.session_state.auto_detected_language = detected_language
+            app_logger.info(f"Auto-detected language: {detected_language}")
+        except Exception as e:
+            st.session_state.auto_detected_language = 'en'
+            app_logger.warning(f"Language detection failed: {e}")
+        
         app_logger.info(f"New session initialized: {st.session_state.session_id}")
 
 def _check_system_health():

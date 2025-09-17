@@ -103,6 +103,11 @@ def detect_language_from_ip() -> str:
         language = COUNTRY_LANGUAGE_MAP.get(country, 'en')
         print(f"DEBUG: Detected language: {language}")
         
+        # Debug: Force Netherlands for testing
+        if country == 'NL':
+            print(f"DEBUG: Netherlands detected, setting to Dutch")
+            return 'nl'
+        
         return language
         
     except Exception as e:

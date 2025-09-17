@@ -171,8 +171,9 @@ class UIComponents:
         chat_history = chat_session.get_history()
         
         if not chat_history:
-            # Show Stephanie  welcome message
-            st.markdown("""
+            # Show Stephanie welcome message in user's language
+            welcome_message = UIComponents._get_welcome_message(language)
+            st.markdown(f"""
             <div style="
                 background: linear-gradient(135deg, #ffffff, #f8fafc);
                 color: #2c3e50;
@@ -183,9 +184,7 @@ class UIComponents:
                 box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
                 max-width: 75%;
             ">
-                <strong>🤖 Stephanie :</strong> Hey! I'm Stephanie  😊<br>
-                Your friendly assistant here at Stephex Horse Trucks.<br>
-                Looking for your ideal horse truck? I'm here to make that easier — just ask me anything!
+                <strong>🤖 Stephanie:</strong> {welcome_message}
             </div>
             """, unsafe_allow_html=True)
         else:
@@ -369,6 +368,23 @@ class UIComponents:
             <strong>🤖 Stephanie :</strong> {processed_content.replace(chr(10), '<br>')}
         </div>
         """, unsafe_allow_html=True)
+
+    @staticmethod
+    def _get_welcome_message(language: str) -> str:
+        """Get welcome message in user's language"""
+        welcome_messages = {
+            "en": "Hello! I'm Stephanie 😊<br>Your personal assistant at Stephex Horse Trucks. I'm here to help you find the perfect horse truck for your needs. Whether you're looking for new or used trucks, need financing info, or have questions about our company — just ask me anything!",
+            
+            "es": "¡Hola! Soy Stephanie 😊<br>Tu asistente personal en Stephex Horse Trucks. Estoy aquí para ayudarte a encontrar el camión de caballos perfecto para tus necesidades. Ya sea que busques camiones nuevos o usados, información de financiamiento, o tengas preguntas sobre nuestra empresa — ¡pregúntame lo que quieras!",
+            
+            "fr": "Bonjour ! Je suis Stephanie 😊<br>Votre assistante personnelle chez Stephex Horse Trucks. Je suis là pour vous aider à trouver le camion à chevaux parfait pour vos besoins. Que vous cherchiez des camions neufs ou d'occasion, des informations de financement, ou que vous ayez des questions sur notre entreprise — n'hésitez pas à me demander !",
+            
+            "it": "Ciao! Sono Stephanie 😊<br>La tua assistente personale presso Stephex Horse Trucks. Sono qui per aiutarti a trovare il camion per cavalli perfetto per le tue esigenze. Che tu stia cercando camion nuovi o usati, informazioni sui finanziamenti, o abbia domande sulla nostra azienda — chiedi pure quello che vuoi!",
+            
+            "nl": "Hallo! Ik ben Stephanie 😊<br>Jouw persoonlijke assistente bij Stephex Horse Trucks. Ik ben er om je te helpen de perfecte paardentrailer voor jouw behoeften te vinden. Of je nu op zoek bent naar nieuwe of gebruikte trucks, financieringsinformatie nodig hebt, of vragen hebt over ons bedrijf — vraag me gerust alles!"
+        }
+        
+        return welcome_messages.get(language, welcome_messages["en"])
 
 # Global UI components instance
 ui = UIComponents()

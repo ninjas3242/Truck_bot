@@ -101,13 +101,23 @@ class AIService:
             print(f"DEBUG: Search error: {e}")
             search_context += "No trucks found in search\n"
         
-        # Language-specific instructions
+        # Detect language from user input if not in supported languages
+        detected_language = self._detect_language_from_text(user_message)
+        if detected_language and detected_language != language:
+            print(f"DEBUG: Detected language from text: {detected_language}")
+            language = detected_language
+        
+        # Language-specific instructions (expanded)
         language_instructions = {
             "en": "Respond in English",
             "es": "Responde en español",
             "fr": "Répondez en français", 
             "it": "Rispondi in italiano",
-            "nl": "Antwoord in het Nederlands"
+            "nl": "Antwoord in het Nederlands",
+            "da": "Svar på dansk",  # Danish
+            "de": "Antworte auf Deutsch",  # German
+            "sv": "Svara på svenska",  # Swedish
+            "no": "Svar på norsk",  # Norwegian
         }
         
         # Main prompt with explicit truck count
@@ -141,6 +151,37 @@ class AIService:
         """ 
         
         return prompt
+    
+    def _detect_language_from_text(self, text: str) -> Optional[str]:
+        """Simple language detection from text patterns"""
+        text_lower = text.lower()
+        
+        # Danish indicators
+        danish_words = ['fortæl', 'mig', 'noget', 'om', 'din', 'virksomhed', 'jeg', 'vil', 'gerne', 'hvad', 'hvor', 'hvordan']
+        if any(word in text_lower for word in danish_words):
+            return 'da'
+        
+        # German indicators  
+        german_words = ['ich', 'bin', 'das', 'ist', 'und', 'der', 'die', 'mit', 'für', 'von', 'auf', 'über', 'können', 'möchte']
+        if any(word in text_lower for word in german_words):
+            return 'de'
+            
+        # Swedish indicators
+        swedish_words = ['jag', 'är', 'det', 'och', 'att', 'en', 'på', 'med', 'för', 'av', 'till', 'från', 'kan', 'vill']
+        if any(word in text_lower for word in swedish_words):
+            return 'sv'
+            
+        # Norwegian indicators
+        norwegian_words = ['jeg', 'er', 'det', 'og', 'å', 'en', 'på', 'med', 'for', 'av', 'til', 'fra', 'kan', 'vil']
+        if any(word in text_lower for word in norwegian_words):
+            return 'no'
+            
+        # Dutch indicators
+        dutch_words = ['kunt', 'mij', 'iets', 'vertellen', 'over', 'uw', 'bedrijf', 'ik', 'ben', 'het', 'en', 'van', 'met', 'voor', 'aan', 'op', 'kan', 'wil']
+        if any(word in text_lower for word in dutch_words):
+            return 'nl'
+        
+        return None
 
 # Global AI service instance
 ai_service = AIService()

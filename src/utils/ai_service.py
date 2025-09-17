@@ -101,11 +101,16 @@ class AIService:
             print(f"DEBUG: Search error: {e}")
             search_context += "No trucks found in search\n"
         
-        # Detect language from user input if not in supported languages
-        detected_language = self._detect_language_from_text(user_message)
-        if detected_language and detected_language != language:
-            print(f"DEBUG: Detected language from text: {detected_language}")
-            language = detected_language
+        # Only auto-detect language if user hasn't explicitly selected one
+        # Respect user's language choice from the sidebar
+        print(f"DEBUG: User selected language: {language}")
+        if language == 'en':  # Only detect if default English
+            detected_language = self._detect_language_from_text(user_message)
+            if detected_language:
+                print(f"DEBUG: Auto-detected from text: {detected_language}")
+                language = detected_language
+        else:
+            print(f"DEBUG: Respecting user selection: {language}")
         
         # Language-specific instructions (expanded)
         language_instructions = {
@@ -142,7 +147,7 @@ class AIService:
         - Be smart about understanding what customers need
         - Give detailed, helpful information about trucks and the company
         - When showing trucks: Name, Image: [url], Features, <a href='[url]'>View Details</a>
-        - Only mention contact info when relevant to the conversation
+        - Only mention contact info when relevant to the conversation but dont forget to mention contact info where it's required
         - Use your intelligence to provide the best recommendations
         
         Customer: {user_message}

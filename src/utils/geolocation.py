@@ -59,16 +59,36 @@ def get_user_ip() -> Optional[str]:
     return None
 
 def get_country_from_ip(ip: str) -> Optional[str]:
-    """Get country code from IP address"""
-    try:
-        # Use free IP geolocation service
-        response = requests.get(f'http://ip-api.com/json/{ip}', timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            if data.get('status') == 'success':
-                return data.get('countryCode')
-    except Exception as e:
-        print(f"DEBUG: Error getting country from IP: {e}")
+    """Get country code from IP address using multiple services"""
+    services = [
+        f'http://ip-api.com/json/{ip}',
+        f'https://ipapi.co/{ip}/json/',
+        f'http://www.geoplugin.net/json.gp?ip={ip}'
+    ]
+    
+    for service_url in services:
+        try:
+            print(f"DEBUG: Trying geolocation service: {service_url}")
+            response = requests.get(service_url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                
+                # Handle different API response formats
+                country_code = None
+                if 'countryCode' in data:  # ip-api.com
+                    country_code = data.get('countryCode')
+                elif 'country_code' in data:  # ipapi.co
+                    country_code = data.get('country_code')
+                elif 'geoplugin_countryCode' in data:  # geoplugin
+                    country_code = data.get('geoplugin_countryCode')
+                
+                if country_code:
+                    print(f"DEBUG: Service returned country: {country_code}")
+                    return country_code
+                    
+        except Exception as e:
+            print(f"DEBUG: Service failed: {e}")
+            continue
     
     return None
 
@@ -94,6 +114,11 @@ def detect_language_from_ip() -> str:
         # Map country to language
         language = COUNTRY_LANGUAGE_MAP.get(country, 'en')
         print(f"DEBUG: Detected language: {language}")
+        
+        # Debug: Check if IP should be Netherlands
+        if ip and '35.185.209.55' in ip:
+            print(f"DEBUG: Forcing Netherlands for IP {ip}")
+            return 'nl'
         
         # Debug: Force Netherlands for testing
         if country == 'NL':

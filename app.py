@@ -66,57 +66,12 @@ def main():
         
         # Sidebar info
         ui.render_sidebar_info()
-    
-    # Main chat interface
-    chat_history = chat_session.get_history()
-    
-    if not chat_history:
-        st.markdown("""
-        <div style="
-            background: linear-gradient(135deg, #ffffff, #f8fafc);
-            color: #2c3e50;
-            padding: 1.2rem 1.8rem;
-            border-radius: 25px 25px 25px 8px;
-            margin: 0.8rem 0;
-            border-left: 4px solid #00d4aa;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-            max-width: 75%;
-        ">
-            <strong>🤖 TruckBot:</strong> 👋 Welcome to Stephex Horse Trucks! How can I help you today?
         
-        """, unsafe_allow_html=True)
-    else:
-        for msg in chat_history:
-            if msg.is_user:
-                st.markdown(f"""
-                <div style="
-                    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-                    color: white;
-                    padding: 1.2rem 1.8rem;
-                    border-radius: 25px 25px 8px 25px;
-                    margin: 0.8rem 0 0.8rem auto;
-                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-                    max-width: 75%;
-                    margin-left: 25%;
-                ">
-                    <strong>👤 You:</strong> {msg.content}
-                
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div style="
-                    background: linear-gradient(135deg, #ffffff, #f8fafc);
-                    color: #2c3e50;
-                    padding: 1.2rem 1.8rem;
-                    border-radius: 25px 25px 25px 8px;
-                    margin: 0.8rem 0;
-                    border-left: 4px solid #00d4aa;
-                    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-                    max-width: 75%;
-                ">
-                    <strong>🤖 TruckBot:</strong> {msg.content}
-                
-                """, unsafe_allow_html=True)
+        # Footer in sidebar
+        ui.render_footer()
+    
+    # Main chat interface - use the UI component that handles images
+    ui.render_chat_interface(selected_language)
     
     # Input area
     user_input, send_clicked, clear_clicked = ui.render_input_area(selected_language)
@@ -139,40 +94,56 @@ def main():
                 st.error("❌ Message too long. Please keep it under 500 characters.")
                 return
             
-            # Add user message to chat
+            # Add user message to chat immediately
             chat_session.add_message(user_input.strip(), is_user=True)
             app_logger.info(f"User message: {user_input[:50]}...")
             
-            # Show typing indicator (faster response)
-            with st.empty():
-                ui.render_typing_indicator()
-                time.sleep(0.1)
+            # Rerun to show user message immediately
+            st.rerun()
             
-            # Generate bot response
-            bot_response = chatbot_engine.process_message(user_input.strip(), selected_language)
-            chat_session.add_message(bot_response, is_user=False)
-            app_logger.info(f"Bot response generated successfully")
-            
-        except ChatbotError as e:
-            app_logger.error(f"Chatbot error: {e}")
-            error_msg = language_manager.get_text("error_message", selected_language)
-            chat_session.add_message(error_msg, is_user=False)
-            st.error("⚠️ I encountered an issue. Please try again.")
         except Exception as e:
             app_logger.error(f"Unexpected error: {e}")
-            error_msg = language_manager.get_text("error_message", selected_language)
-            chat_session.add_message(error_msg, is_user=False)
             st.error("❌ Something went wrong. Please refresh and try again.")
-        
-        # Rerun to update chat display
-        st.rerun()
+    
+    # Generate AI response if there's a new user message without response
+    chat_history = chat_session.get_history()
+    if chat_history and chat_history[-1].is_user:
+        # Check if last message needs a response
+        if len(chat_history) == 1 or not chat_history[-2].is_user:
+            try:
+                # Show typing indicator
+                typing_placeholder = st.empty()
+                with typing_placeholder:
+                    ui.render_typing_indicator()
+                
+                # Generate bot response
+                bot_response = chatbot_engine.process_message(chat_history[-1].content, selected_language)
+                chat_session.add_message(bot_response, is_user=False)
+                app_logger.info(f"Bot response generated successfully")
+                
+                # Clear typing indicator and rerun
+                typing_placeholder.empty()
+                st.rerun()
+                
+            except Exception as e:
+                app_logger.error(f"Bot response error: {e}")
+                error_msg = language_manager.get_text("error_message", selected_language)
+                chat_session.add_message(error_msg, is_user=False)
+                typing_placeholder.empty()
+                st.rerun()
     
     # Handle empty input submission
     elif send_clicked and not user_input.strip():
         ui.show_error_message("Please enter a message before sending.")
     
-    # Footer with enhanced info
-    ui.render_footer()
+    # Auto-scroll to bottom
+    st.markdown("""
+    <script>
+    setTimeout(function() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }, 100);
+    </script>
+    """, unsafe_allow_html=True)
     
     # Fix for arrow symbol display issues
     st.markdown("""
@@ -212,8 +183,8 @@ def _check_system_health():
             app_logger.warning("AI service not available, using fallback mode")
         
         # Check data integrity
-        if chatbot_engine.trucks_df.empty:
-            app_logger.warning("No truck data available")
+        if not chatbot_engine.knowledge_base:
+            app_logger.warning("No knowledge base data available")
         
         app_logger.info("System health check completed")
         

@@ -1,0 +1,32 @@
+#1
+DEALER-LIST NAME
+DEALER-LIST ADDRESS
+DEALER-LIST PHONE
+1
+3A's Leisure - AKX
+Carmarthen, Carmarthenshire SA33 5ES, United Kingd...
++44 797 10 88 452
+2
+Bagozzi Carrozze - AKX
+Via Albera, 1, Concesio, BS, Italy
++39 306 39 12 97
+3
+Roma Trailer Srl - AKX
+Via Casilina, km 48,700, Colleferro, RM, Italy
++39 029 20 06 04
+5
+4
+SRM Vans Raynaud
+International Horses
+56 Route de Draguignan, 06530 Peymeinade, France
++33 607 53 81 53
+Via Vaprio, 58, Cassano d'Adda Metropolitan City o...
++39 335 246 669
+6
+European Horseboxes
+Ringtail Road, Burscough, Ormskirk L40 8JY, UK
++44 7803 437426
+7
+Stephex Horsetrucks UK
+Green Lane, Crosby-on-Eden, Carlisle CA6 4QN, UK
++44 790 87 49 148

@@ -37,19 +37,27 @@ class AIService:
             # Create context-aware prompt
             prompt = self._create_prompt(user_message, context, language)
             print(f"DEBUG: Prompt length: {len(prompt)}")
-            print(f"DEBUG: Trucks data count: {len(context.get('trucks_data', []))}")
+            print(f"DEBUG: Context keys: {list(context.keys())}")
+            # This debug was moved to after search
             
-            # Generate response
+            # Generate response with safety settings
             response = self.model.generate_content(
                 prompt,
                 generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=2000,
-                    temperature=0.7,
-                )
+                    max_output_tokens=3000,
+                    temperature=0.6,
+                ),
+                safety_settings=[
+                    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"}
+                ]
             )
             
             result = response.text.strip()
-            print(f"DEBUG: AI Response: {result[:100]}...")
+            print(f"DEBUG: AI Response length: {len(result)} characters")
+            print(f"DEBUG: AI Response preview: {result[:200]}...")
             return result
             
         except Exception as e:
@@ -60,24 +68,38 @@ class AIService:
     def _create_prompt(self, user_message: str, context: Dict[str, Any], language: str) -> str:
         """Create context-aware prompt for Gemini"""
         
-        # Get truck data from context
-        trucks_data = context.get('trucks_data', [])
-        company_data = context.get('company_data', [])
+        search_context = "AVAILABLE TRUCKS:\n"
         
-        # Build truck inventory context (simplified)
-        truck_context = "TRUCKS:\n"
-        for truck in trucks_data[:10]:  # Limit to first 10 trucks
-            name = truck.get('Name', truck.get('name', 'Unknown'))
-            condition = truck.get('condition', truck.get('Condition', 'Unknown'))
-            horses = truck.get('Horses', truck.get('horses', truck.get('capacity', 'N/A')))
+        try:
+            # Smart search for relevant content
+            from ..utils.smart_search import search_knowledge
+            # Increase results for truck queries
+            max_results = 8 if any(word in user_message.lower() for word in ['truck', '5', 'suggest', 'list']) else 3
+            results = search_knowledge(user_message, max_results=max_results)
             
-            truck_context += f"- {name} ({horses} horses, {condition})\n"
-        
-        # Build contact context
-        contact_context = "CONTACT INFO:\n"
-        for item in company_data:
-            if item.get('Category') == 'Contact':
-                contact_context += f"- {item['Title']}: {item['Description']}\n"
+            print(f"DEBUG: Found {len(results)} search results")
+            print(f"DEBUG: Truck results: {[r['type'] for r in results if r.get('type') == 'truck']}")
+            
+            for item in results:
+                if item.get('type') == 'truck':
+                    search_context += f"TRUCK: {item['title']}"
+                    search_context += f" | Capacity: {item.get('capacity', '')}"
+                    search_context += f" | Condition: {item.get('condition', '')}"
+                    if item.get('year'):
+                        search_context += f" | Year: {item['year']}"
+                    if item.get('features'):
+                        search_context += f" | Features: {item['features']}"
+                    if item.get('image_url'):
+                        search_context += f" | Image: {item['image_url']}"
+                    if item.get('url'):
+                        search_context += f" | Details: {item['url']}"
+                    search_context += "\n"
+                elif item.get('type') == 'dealer':
+                    search_context += f"DEALER: {item['title']}: {item['content']}\n"
+                    
+        except Exception as e:
+            print(f"DEBUG: Search error: {e}")
+            search_context += "No trucks found in search\n"
         
         # Language-specific instructions
         language_instructions = {
@@ -88,24 +110,27 @@ class AIService:
             "nl": "Antwoord in het Nederlands"
         }
         
-        # Main prompt (simplified)
+        # Main prompt with explicit truck count
+        truck_count = len([r for r in results if r.get('type') == 'truck'])
+        
         prompt = f"""
-        You are Stephex Horse Trucks AI assistant.
+        You are Stephanie, an intelligent AI assistant for Stephex Horse Trucks. Use your reasoning and intelligence to provide helpful, accurate responses.
         
-        {truck_context}
+        Available inventory:
+        {search_context}
         
-        {contact_context}
-        
-        Rules:
+        Instructions:
         - {language_instructions.get(language, "Respond in English")}
-        - Show truck details from the list above
-        - For pricing say "Contact us for quote"
-        - For contact requests, provide contact details above
-        - Be helpful and direct
+        - Analyze the user's request and respond intelligently
+        - Pay attention to the Condition field (New vs Second-Hand/Used)
+        - Format: Name, Image: [url], Features, <a href='[url]'>View Details</a>
+        - No ** formatting - use plain text
+        - Use intelligence to filter and show relevant results
+        - End with: Tom Kerkhofs +32 478 44 76 63 or Dimitri Engels +32 470 10 13 40
         
-        Question: {user_message}
+        User: {user_message}
         
-        Answer:
+        Response:
         """
         
         return prompt

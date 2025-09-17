@@ -1,0 +1,29 @@
+#↑
+DEALER-LIST
+NAME
+DEALER-LIST ADDRESS
+DEALER-LIST PHONE
+1
+GLENPATRICK HORSEBOXES
+Carnanee Road, Templepatrick, Ballyclare BT39 OBZ,...
++44 2896 922 467
+2
+Theurer Trucks
+Hamburger Straße 65, 23816 Leezen, Germany
++49 45 52 994-1285
+3
+Kingsrød Trading AS
+Statsminister Torps vei 57, 1738 Sarpsborg, Norway
++47 691 11 555
+4
+Kingsröd AB
+Fjärås industriväg 2, Fjärås, Sweden
++46 300 10163
+5
+K&P Equestrian GmbH
+Gustav-Stresemann-Straße 30, Bergisch Gladbach, Ge...
+0049 177 40 56 354
+6
+STEPHEX Horsetrucks
+Lovegemstraat 15, Meise, Belgium
++32 2 269 88 75

@@ -1,0 +1,36 @@
+DEALER-LIST_NAME,
+DEALER-LIST ADDRESS,
+DEALER-LIST PHONE
+#
+↑
+1	
+Verpas Horsetrucks and Trailers✏️
+📅
+Ambachtstraat 9, 8820 Torhout, Belgium
+✏️
++32 50 21 67 29✏️
+2	
+Kingsrød ApS✏️
+Hestehavevej 22, Hillerød, Denmark✏️
++45 209 98 484✏️
+3	
+STX France✏️
+10 Route du Pigeon Bleu, 78490 Galluis, France✏️
+‭+33 6 48 00 13 56‬✏️
+4	
+Horsetrucks Terhorst✏️
+Lötscher Weg 57, 41334 Nettetal-Breyell, Germany✏️
++49 21 53 9566 880✏️
+5	
+Anemone Horsetrucks✏️
+Glashorst 99, Scherpenzeel, Netherlands✏️
++31 33-470 18 28✏️
+6	
+STX-UK✏️
+Henfield BN5 9SL, UK✏️
++44 1273 574 000✏️
+7	
+Cooper Horsetrucks Ltd.✏️
+Cooper International Horse Transport: Ireland - UK...
+✏️
++35878390265

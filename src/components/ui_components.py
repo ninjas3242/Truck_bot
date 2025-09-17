@@ -13,7 +13,7 @@ except ImportError:
     # Fallback for development
     SUPPORTED_LANGUAGES = {"en": "English", "es": "Español", "fr": "Français", "it": "Italiano", "nl": "Nederlands"}
     COLORS = {"primary": "#1f2937"}
-    BOT_NAME = "TruckBot"
+    BOT_NAME = "Stephanie "
     BOT_AVATAR = "🤖"
     USER_AVATAR = "👤"
     settings = None
@@ -79,7 +79,7 @@ class UIComponents:
         """Render language selector and return selected language"""
         st.sidebar.markdown("""
         <div class="language-selector">
-            <h3>🌐 Language / Idioma</h3>
+            <h3 style="color: black;">🌐 Language / Idioma</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -158,42 +158,25 @@ class UIComponents:
     @staticmethod
     def render_chat_interface(language: str):
         """Render the main chat interface"""
-        # Chat container with proper styling
-        st.markdown("""
-        <div style="
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            border: 1px solid #e5e7eb;
-            margin-bottom: 2rem;
-            min-height: 400px;
-            max-height: 600px;
-            overflow-y: auto;
-        ">
-        """, unsafe_allow_html=True)
-        
         # Display chat history
         chat_history = chat_session.get_history()
         
         if not chat_history:
-            # Show welcome message
-            welcome_msg = language_manager.get_text("welcome", language)
-            st.markdown(f"""
+            # Show Stephanie  welcome message
+            st.markdown("""
             <div style="
                 background: linear-gradient(135deg, #ffffff, #f8fafc);
                 color: #2c3e50;
                 padding: 1.2rem 1.8rem;
                 border-radius: 25px 25px 25px 8px;
                 margin: 0.8rem 0;
-                margin-right: 15%;
                 border-left: 4px solid #00d4aa;
                 box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-                word-wrap: break-word;
                 max-width: 75%;
-                position: relative;
             ">
-                <strong>🤖 {BOT_NAME}:</strong> {welcome_msg}
+                <strong>🤖 Stephanie :</strong> Hey! I'm Stephanie  😊<br>
+                Your friendly assistant here at Stephex Horse Trucks.<br>
+                Looking for your ideal horse truck? I'm here to make that easier — just ask me anything!
             </div>
             """, unsafe_allow_html=True)
         else:
@@ -206,49 +189,49 @@ class UIComponents:
                         color: white;
                         padding: 1.2rem 1.8rem;
                         border-radius: 25px 25px 8px 25px;
-                        margin: 0.8rem 0;
-                        margin-left: 15%;
+                        margin: 0.8rem 0 0.8rem auto;
                         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-                        word-wrap: break-word;
                         max-width: 75%;
-                        position: relative;
+                        margin-left: 25%;
                     ">
                         <strong>👤 You:</strong> {msg.content}
                     </div>
                     """, unsafe_allow_html=True)
                 else:
-                    st.markdown(f"""
-                    <div style="
-                        background: linear-gradient(135deg, #ffffff, #f8fafc);
-                        color: #2c3e50;
-                        padding: 1.2rem 1.8rem;
-                        border-radius: 25px 25px 25px 8px;
-                        margin: 0.8rem 0;
-                        margin-right: 15%;
-                        border-left: 4px solid #00d4aa;
-                        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-                        word-wrap: break-word;
-                        max-width: 75%;
-                        position: relative;
-                    ">
-                        <strong>🤖 {BOT_NAME}:</strong> {msg.content}
-                    </div>
-                    """, unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
+                    # Display bot message with images
+                    UIComponents._render_bot_message_with_images(msg.content)
     
     @staticmethod
     def render_typing_indicator():
         """Show typing indicator"""
         st.markdown("""
-        <div class="typing-indicator">
-            <span>TruckBot is typing</span>
-            <div class="typing-dots">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
+        <div style="
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            color: #2c3e50;
+            padding: 1.2rem 1.8rem;
+            border-radius: 25px 25px 25px 8px;
+            margin: 0.8rem 0;
+            margin-right: 15%;
+            border-left: 4px solid #00d4aa;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            max-width: 75%;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        ">
+            <strong><span style="font-size: 1.5em;">🤖</span> Stephanie  is typing</strong>
+            <div style="display: flex; gap: 0.2rem; margin-left: 0.5rem;">
+                <div style="width: 6px; height: 6px; background: #6b7280; border-radius: 50%; animation: typingDot 1.4s infinite ease-in-out;"></div>
+                <div style="width: 6px; height: 6px; background: #6b7280; border-radius: 50%; animation: typingDot 1.4s infinite ease-in-out; animation-delay: -0.16s;"></div>
+                <div style="width: 6px; height: 6px; background: #6b7280; border-radius: 50%; animation: typingDot 1.4s infinite ease-in-out; animation-delay: -0.32s;"></div>
             </div>
         </div>
+        <style>
+        @keyframes typingDot {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        </style>
         """, unsafe_allow_html=True)
     
     @staticmethod
@@ -301,25 +284,25 @@ class UIComponents:
     
     @staticmethod
     def render_footer():
-        """Render footer information"""
-        st.markdown("---")
-        st.markdown("""
+        """Render footer information in sidebar"""
+        st.sidebar.markdown("---")
+        st.sidebar.markdown("""
         <div style="
             text-align: center;
             background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            padding: 2rem;
-            border-radius: 16px;
-            margin-top: 2rem;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
             border: 1px solid #e1e8ed;
         ">
-            <p style="margin: 0 0 0.5rem 0; font-size: 1.1rem; font-weight: 600; color: #2c3e50;">
-                🚛 <strong>Stephex Horse Trucks</strong> - Premium Horse Transportation Solutions
+            <p style="margin: 0 0 0.3rem 0; font-size: 0.9rem; font-weight: 600; color: #2c3e50;">
+                🚛 <strong>Stephex Horse Trucks</strong>
             </p>
-            <p style="margin: 0; color: #6b7280; font-size: 0.9rem;">
-                Powered by AI • Built with ❤️ for better customer experience
+            <p style="margin: 0; color: #6b7280; font-size: 0.7rem;">
+                Powered by AI • Built with ❤️
             </p>
-            <div style="margin-top: 1rem; font-size: 0.8rem; color: #9ca3af;">
-                © 2024 Stephex Horse Trucks | 🌍 Global Shipping Available
+            <div style="margin-top: 0.5rem; font-size: 0.6rem; color: #9ca3af;">
+                © 2024 | 🌍 Global Shipping
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -338,6 +321,46 @@ class UIComponents:
     def show_info_message(message: str):
         """Show info message"""
         st.info(f"ℹ️ {message}")
+    
+    @staticmethod
+    def _render_bot_message_with_images(content: str):
+        """Render bot message with images inside one chat bubble"""
+        import re
+        
+        # Debug: Print first 200 chars to see what we're working with
+        print(f"DEBUG UI: Content preview: {content[:200]}...")
+        
+        # Process content to replace image URLs with actual images and remove ** formatting
+        processed_content = content
+        
+        # Remove ** bold formatting
+        processed_content = re.sub(r'\*\*(.*?)\*\*', r'\1', processed_content)
+        
+        # Find image URLs
+        image_urls = re.findall(r'Image: (https://[^\s\n,]+)', processed_content)
+        print(f"DEBUG UI: Found {len(image_urls)} images: {image_urls[:2]}")
+        
+        # Replace image URLs with HTML img tags
+        for img_url in image_urls:
+            img_tag = f'<br><img src="{img_url.strip()}" style="max-width: 350px; border-radius: 8px; margin: 10px 0;" onerror="this.style.display=\'none\'"><br>'
+            processed_content = processed_content.replace(f'Image: {img_url}', img_tag)
+        
+        # Render everything in one chat bubble
+        st.markdown(f"""
+        <div style="
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            color: #2c3e50;
+            padding: 1.2rem 1.8rem;
+            border-radius: 25px 25px 25px 8px;
+            margin: 0.8rem 0;
+            border-left: 4px solid #00d4aa;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            max-width: 75%;
+        ">
+            <strong>🤖 Stephanie :</strong> {processed_content.replace(chr(10), '<br>')}
+        </div>
+        """, unsafe_allow_html=True)
 
 # Global UI components instance
 ui = UIComponents()
+

@@ -3,3 +3,5 @@ pandas
 google-generativeai
 pydantic
 pydantic-settings
+requests
+python-dotenv

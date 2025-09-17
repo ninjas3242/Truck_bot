@@ -34,23 +34,32 @@ class Settings(BaseSettings):
     
     # API Keys
     gemini_api_key: str = Field(default="")
+    google_client_id: str = Field(default="")
+    google_client_secret: str = Field(default="")
+    google_redirect_uri: str = Field(default="http://localhost:8501")
     
     def __init__(self, **kwargs):
-        # Get API key from Streamlit secrets or environment
+        # Get API keys from Streamlit secrets or environment
         if USE_STREAMLIT_SECRETS and hasattr(st, 'secrets'):
             try:
                 kwargs['gemini_api_key'] = st.secrets["GEMINI_API_KEY"]
+                kwargs['google_client_id'] = st.secrets.get("GOOGLE_CLIENT_ID", "")
+                kwargs['google_client_secret'] = st.secrets.get("GOOGLE_CLIENT_SECRET", "")
+                kwargs['google_redirect_uri'] = st.secrets.get("GOOGLE_REDIRECT_URI", "http://localhost:8501")
             except KeyError:
                 pass
         else:
             kwargs['gemini_api_key'] = os.getenv("GEMINI_API_KEY", "")
+            kwargs['google_client_id'] = os.getenv("GOOGLE_CLIENT_ID", "")
+            kwargs['google_client_secret'] = os.getenv("GOOGLE_CLIENT_SECRET", "")
+            kwargs['google_redirect_uri'] = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8501")
         
         super().__init__(**kwargs)
     
     # AI Configuration
     use_ai: bool = True
     ai_model: str = "gemini-2.5-flash"
-    max_tokens: int = 1000
+    max_tokens: int = 300000
     temperature: float = 0.7
     
     # Chat Configuration
@@ -96,7 +105,7 @@ COLORS = {
 }
 
 # Bot Personality
-BOT_NAME = "TruckBot"
+BOT_NAME = "Stephanie"
 BOT_AVATAR = "🤖"
 USER_AVATAR = "👤"
 

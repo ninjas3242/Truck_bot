@@ -153,19 +153,32 @@ def main():
     # Fix for arrow symbol display issues
     st.markdown("""
     <style>
-    /* Hide problematic Material Design icons */
-    .material-icons, .material-symbols-outlined {
+    /* Hide all Material Design icons and symbols */
+    .material-icons, .material-symbols-outlined, .material-symbols {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Fix keyboard_double_arrow_right specifically */
+    *:contains("keyboard_double_arrow_right") {
+        font-size: 0 !important;
+    }
+    
+    /* Replace with proper arrow */
+    button[kind="primary"]::after {
+        content: "→" !important;
+        font-family: Arial, sans-serif !important;
+        margin-left: 5px;
+    }
+    
+    /* Hide text content that shows keyboard_double_arrow_right */
+    button span:contains("keyboard_double_arrow_right") {
         display: none !important;
     }
     
-    /* Fix for keyboard_double_arrow_right display */
-    [data-testid*="arrow"], [class*="arrow"], [class*="keyboard"] {
-        font-family: 'Inter', sans-serif !important;
-    }
-    
-    /* Replace arrow symbols with proper Unicode */
-    .stButton button::after {
-        content: '' !important;
+    /* General fix for any element containing this text */
+    *[title*="keyboard_double_arrow_right"] {
+        display: none !important;
     }
     </style>
     """, unsafe_allow_html=True)

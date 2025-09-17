@@ -101,16 +101,8 @@ class AIService:
             print(f"DEBUG: Search error: {e}")
             search_context += "No trucks found in search\n"
         
-        # Only auto-detect language if user hasn't explicitly selected one
-        # Respect user's language choice from the sidebar
-        print(f"DEBUG: User selected language: {language}")
-        if language == 'en':  # Only detect if default English
-            detected_language = self._detect_language_from_text(user_message)
-            if detected_language:
-                print(f"DEBUG: Auto-detected from text: {detected_language}")
-                language = detected_language
-        else:
-            print(f"DEBUG: Respecting user selection: {language}")
+        # ALWAYS respect user's language selection - NO auto-detection override
+        print(f"DEBUG: Using user selected language: {language} (no auto-detection)")
         
         # Language-specific instructions (expanded)
         language_instructions = {
@@ -142,12 +134,12 @@ class AIService:
         - Professional but approachable
         
         Guidelines:
-        - {language_instructions.get(language, "Respond in English")}
+        - CRITICAL: {language_instructions.get(language, "Respond in English")} - DO NOT use any other language
         - Do not greet the customer as you have already greated them in the into message
         - Be smart about understanding what customers need
         - Give detailed, helpful information about trucks and the company
         - When showing trucks: Name, Image: [url], Features, <a href='[url]'>View Details</a>
-        - Only mention contact info when relevant to the conversation but dont forget to mention contact info where it's required
+        - For pricing questions, always provide contact info: Tom Kerkhofs +32 478 44 76 63 or Dimitri Engels +32 470 10 13 40
         - Use your intelligence to provide the best recommendations
         
         Customer: {user_message}

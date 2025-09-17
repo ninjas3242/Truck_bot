@@ -46,23 +46,15 @@ COUNTRY_LANGUAGE_MAP = {
 def get_user_ip() -> Optional[str]:
     """Get user's IP address from Streamlit"""
     try:
-        # Try to get real IP from headers (works in production)
-        if hasattr(st, 'context') and hasattr(st.context, 'headers'):
-            headers = st.context.headers
-            # Check common headers for real IP
-            for header in ['X-Forwarded-For', 'X-Real-IP', 'CF-Connecting-IP']:
-                if header in headers:
-                    ip = headers[header].split(',')[0].strip()
-                    if ip and ip != '127.0.0.1':
-                        return ip
-        
-        # Fallback: get IP from external service
-        response = requests.get('https://api.ipify.org', timeout=3)
+        # Always use external service to get real public IP (works with VPN)
+        response = requests.get('https://api.ipify.org', timeout=5)
         if response.status_code == 200:
-            return response.text.strip()
+            public_ip = response.text.strip()
+            print(f"DEBUG: Got public IP: {public_ip}")
+            return public_ip
             
     except Exception as e:
-        print(f"DEBUG: Error getting IP: {e}")
+        print(f"DEBUG: Error getting public IP: {e}")
     
     return None
 

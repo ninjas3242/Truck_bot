@@ -68,7 +68,7 @@ class Settings(BaseSettings):
     
     # Cache Configuration
     cache_ttl: int = 300  # 5 minutes
-    max_cache_size: int = 128
+    max_cache_size: int = 500
     
     class Config:
         env_file = ".env"

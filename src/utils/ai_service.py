@@ -114,7 +114,7 @@ class AIService:
             "da": "Svar på dansk",  # Danish
             "de": "Antworte auf Deutsch",  # German
             "sv": "Svara på svenska",  # Swedish
-            "no": "Svar på norsk",  # Norwegian
+            "no": "Svar på norsk",  # Norwegian 
         }
         
         # Main prompt with explicit truck count
@@ -141,6 +141,9 @@ class AIService:
         - When showing trucks: Name, Image: [url], Features, <a href='[url]'>View Details</a>
         - For pricing questions, always provide contact info: Tom Kerkhofs +32 478 44 76 63 or Dimitri Engels +32 470 10 13 40
         - Use your intelligence to provide the best recommendations
+        - When customer shows interest in visiting, seeing trucks, scheduling meetings, or booking appointments, offer to book an appointment
+        - For appointment requests, use the calendar booking functionality and provide the booking link
+        - Appointment opportunities: "visit showroom", "see trucks", "schedule meeting", "book appointment", "come see", "visit us", "meet in person"
         
         Customer: {user_message}
         

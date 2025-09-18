@@ -75,15 +75,21 @@ class ChatbotEngine:
         if any(word in user_message.lower() for word in ["hi", "hello", "hey"]) and len(user_message.split()) <= 2:
             return "👋 Welcome to Stephex Horse Trucks! I'm your AI assistant specializing in premium horse transportation solutions. I can help you find the perfect truck, and answer any questions about our inventory. What can I assist you with today?"
         
-        # Check if user wants to book appointment (only for booking requests)
-        booking_words = ['book', 'appointment', 'schedule', 'meeting']
-        time_words = ['tomorrow', 'today', '2pm', '2 pm', 'pm', 'am']
+        # Enhanced appointment booking detection
+        booking_indicators = [
+            'book', 'appointment', 'schedule', 'meeting', 'visit', 'see trucks', 
+            'showroom', 'come see', 'meet', 'consultation', 'demo', 'test drive'
+        ]
+        time_indicators = ['tomorrow', 'today', 'next week', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'pm', 'am']
         
-        if (any(word in user_message.lower() for word in booking_words) or 
-            any(word in user_message.lower() for word in time_words)) and len(user_message.split()) <= 5:
+        message_lower = user_message.lower()
+        has_booking_word = any(word in message_lower for word in booking_indicators)
+        has_time_word = any(word in message_lower for word in time_indicators)
+        
+        if has_booking_word or has_time_word:
             from ..utils.calendar_service import calendar_service
             auth_url = calendar_service.get_auth_url()
-            return f"Perfect! To complete your appointment booking, click this link:\n\n<a href='{auth_url}' target='_blank' style='color: #007bff; text-decoration: underline; font-weight: bold; font-size: 16px;'>📅 Book Appointment</a>\n\nThis will connect your Google Calendar and automatically add the appointment with all consultation details."
+            return f"Excellent! I'd love to help you schedule a visit to see our trucks in person. Click the link below to book your appointment:\n\n<a href='{auth_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Book Your Appointment</a>\n\nThis will connect to your Google Calendar and we'll schedule a personalized consultation where you can see our trucks, discuss your needs, and get expert advice from our team!"
         
         # Use AI for everything else including initial booking detection
         context = {

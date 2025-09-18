@@ -115,6 +115,7 @@ class ChatbotEngine:
                 parts = booking_info.split("|")
                 
                 print(f"DEBUG: Parsed booking parts: {parts}")
+                print(f"DEBUG: Current date/time: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
                 
                 if len(parts) >= 3:
                     truck_type = parts[0].strip()
@@ -143,18 +144,63 @@ class ChatbotEngine:
                     from datetime import datetime, timedelta
                     from urllib.parse import quote
                     
+                    print(f"DEBUG: Starting date parsing for: '{date_time_str}'")
+                    
                     # Parse date for calendar link
+                    now = datetime.now()
+                    print(f"DEBUG: Current datetime: {now.strftime('%Y-%m-%d %H:%M')}")
+                    
                     if 'tomorrow' in date_time_str.lower():
-                        tomorrow = datetime.now() + timedelta(days=1)
-                        if '2' in date_time_str:
-                            start_time = tomorrow.replace(hour=14, minute=0, second=0, microsecond=0)
-                        else:
-                            start_time = tomorrow.replace(hour=14, minute=0, second=0, microsecond=0)
+                        target_date = now + timedelta(days=1)
+                        print(f"DEBUG: Detected 'tomorrow', setting to: {target_date.strftime('%Y-%m-%d')}")
+                    elif '2 days' in date_time_str.lower() or 'two days' in date_time_str.lower():
+                        target_date = now + timedelta(days=2)
+                        print(f"DEBUG: Detected '2 days', setting to: {target_date.strftime('%Y-%m-%d')}")
+                    elif '3 days' in date_time_str.lower() or 'three days' in date_time_str.lower():
+                        target_date = now + timedelta(days=3)
+                    elif '20th' in date_time_str.lower() or '20' in date_time_str:
+                        # For 20th of current month
+                        target_date = now.replace(day=20)
+                        if target_date < now:  # If 20th already passed, next month
+                            if now.month == 12:
+                                target_date = target_date.replace(year=now.year + 1, month=1)
+                            else:
+                                target_date = target_date.replace(month=now.month + 1)
                     else:
-                        tomorrow = datetime.now() + timedelta(days=1)
-                        start_time = tomorrow.replace(hour=14, minute=0, second=0, microsecond=0)
+                        target_date = now + timedelta(days=1)  # default tomorrow
+                    
+                    # Parse time - remove hardcoded default
+                    hour = None
+                    if '1 pm' in date_time_str.lower() or '1pm' in date_time_str.lower():
+                        hour = 13
+                    elif '2 pm' in date_time_str.lower() or '2pm' in date_time_str.lower():
+                        hour = 14
+                    elif '3 pm' in date_time_str.lower() or '3pm' in date_time_str.lower():
+                        hour = 15
+                    elif '4 pm' in date_time_str.lower() or '4pm' in date_time_str.lower():
+                        hour = 16
+                    elif '5 pm' in date_time_str.lower() or '5pm' in date_time_str.lower():
+                        hour = 17
+                    elif '9 am' in date_time_str.lower() or '9am' in date_time_str.lower():
+                        hour = 9
+                    elif '10 am' in date_time_str.lower() or '10am' in date_time_str.lower():
+                        hour = 10
+                    elif '11 am' in date_time_str.lower() or '11am' in date_time_str.lower():
+                        hour = 11
+                    elif '12 pm' in date_time_str.lower() or '12pm' in date_time_str.lower():
+                        hour = 12
+                    
+                    if hour is None:
+                        hour = 14  # only default if no time found
+                    
+                    print(f"DEBUG: Time parsing - Input: '{date_time_str}', Extracted hour: {hour}")
+                    
+                    start_time = target_date.replace(hour=hour, minute=0, second=0, microsecond=0)
+                    print(f"DEBUG: Final parsed datetime: {start_time.strftime('%Y-%m-%d %H:%M')}")
                     
                     end_time = start_time + timedelta(hours=1)
+                    
+                    print(f"DEBUG: Calendar will show: {start_time.strftime('%B %d, %Y at %I:%M %p')}")
                     
                     # Create Google Calendar link that auto-fills user's calendar
                     title = f"Stephex Horse Trucks - {truck_type}"
@@ -163,7 +209,10 @@ class ChatbotEngine:
                     
                     calendar_url = f"https://calendar.google.com/calendar/render?action=TEMPLATE&text={quote(title)}&dates={start_time.strftime('%Y%m%dT%H%M%S')}/{end_time.strftime('%Y%m%dT%H%M%S')}&details={quote(details)}&location={quote(location)}"
                     
-                    return f"Perfect! Your appointment is ready:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {date_time_str}\n• **Contact:** {email}\n\nClick below to add this to your Google Calendar:\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to My Calendar</a>\n\nOur team will contact you to confirm details."
+                    formatted_date = start_time.strftime('%B %d, %Y at %I:%M %p')
+                    print(f"DEBUG: Final display: {formatted_date}")
+                    
+                    return f"Perfect! Your appointment is ready:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {formatted_date}\n• **Contact:** {email}\n\nClick below to add this to your Google Calendar:\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to My Calendar</a>\n\nOur team will contact you to confirm details."
             
             return response
         

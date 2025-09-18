@@ -94,7 +94,41 @@ class ChatbotEngine:
                 'user_message': user_message,
                 'booking_mode': True
             }
-            return ai_service.generate_response(user_message, context, language)
+            response = ai_service.generate_response(user_message, context, language)
+            
+            # Check if AI completed booking
+            if "BOOKING_COMPLETE:" in response:
+                import streamlit as st
+                from ..utils.calendar_service import calendar_service
+                
+                print(f"DEBUG: Detected BOOKING_COMPLETE in response: {response}")
+                
+                # Parse booking data
+                booking_info = response.split("BOOKING_COMPLETE:")[1].strip()
+                parts = booking_info.split("|")
+                
+                print(f"DEBUG: Parsed booking parts: {parts}")
+                
+                if len(parts) >= 3:
+                    truck_type = parts[0].strip()
+                    date_time_str = parts[1].strip()
+                    email = parts[2].strip()
+                    
+                    # Store in session for calendar creation
+                    st.session_state.booking_data = {
+                        'truck_type': truck_type,
+                        'date_time_str': date_time_str,
+                        'email': email
+                    }
+                    
+                    print(f"DEBUG: Stored booking data: {st.session_state.booking_data}")
+                    
+                    # Generate booking link
+                    auth_url = calendar_service.get_auth_url()
+                    
+                    return f"Perfect! I've got all your details:\n\n📋 **Appointment Summary:**\n• **Truck:** {truck_type}\n• **Date & Time:** {date_time_str}\n• **Email:** {email}\n\nClick below to add this to your Google Calendar:\n\n<a href='{auth_url}' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Book Appointment</a>"
+            
+            return response
         
         # Use AI for everything else
         context = {

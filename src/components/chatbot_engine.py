@@ -123,10 +123,33 @@ class ChatbotEngine:
                     
                     print(f"DEBUG: Stored booking data: {st.session_state.booking_data}")
                     
-                    # Generate booking link
-                    auth_url = calendar_service.get_auth_url()
+                    # Remove OAuth generation
                     
-                    return f"Perfect! I've got all your details:\n\n📋 **Appointment Summary:**\n• **Truck:** {truck_type}\n• **Date & Time:** {date_time_str}\n• **Email:** {email}\n\nClick below to add this to your Google Calendar:\n\n<a href='{auth_url}' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Book Appointment</a>"
+                    # Create simple Google Calendar link (no OAuth needed)
+                    from datetime import datetime, timedelta
+                    from urllib.parse import quote
+                    
+                    # Parse date for calendar link
+                    if 'tomorrow' in date_time_str.lower():
+                        tomorrow = datetime.now() + timedelta(days=1)
+                        if '2' in date_time_str:
+                            start_time = tomorrow.replace(hour=14, minute=0, second=0, microsecond=0)
+                        else:
+                            start_time = tomorrow.replace(hour=14, minute=0, second=0, microsecond=0)
+                    else:
+                        tomorrow = datetime.now() + timedelta(days=1)
+                        start_time = tomorrow.replace(hour=14, minute=0, second=0, microsecond=0)
+                    
+                    end_time = start_time + timedelta(hours=1)
+                    
+                    # Create Google Calendar link that auto-fills user's calendar
+                    title = f"Stephex Horse Trucks - {truck_type}"
+                    details = f"Consultation with Stephex Horse Trucks\nContact: {email}\nSales: Tom Kerkhofs +32 478 44 76 63 or Dimitri Engels +32 470 10 13 40"
+                    location = "Stephex Horse Trucks Showroom"
+                    
+                    calendar_url = f"https://calendar.google.com/calendar/render?action=TEMPLATE&text={quote(title)}&dates={start_time.strftime('%Y%m%dT%H%M%S')}/{end_time.strftime('%Y%m%dT%H%M%S')}&details={quote(details)}&location={quote(location)}"
+                    
+                    return f"Perfect! Your appointment is ready:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {date_time_str}\n• **Contact:** {email}\n\nClick below to add this to your Google Calendar:\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to My Calendar</a>\n\nOur team will contact you to confirm details."
             
             return response
         

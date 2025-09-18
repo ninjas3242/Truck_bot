@@ -141,12 +141,12 @@ class AIService:
         - When showing trucks: Name, Image: [url], Features, <a href='[url]'>View Details</a>
         - For pricing questions, always provide contact info: Tom Kerkhofs +32 478 44 76 63 or Dimitri Engels +32 470 10 13 40
         - Use your intelligence to provide the best recommendations
-        - When customer wants to book appointments, be intelligent about collecting: truck type, date/time, email
-        - If user provides complete booking details, respond with: BOOKING_COMPLETE: truck_type|date_time|email
-        - Example: BOOKING_COMPLETE: 2-horse truck|tomorrow 2pm|user@email.com
-        - Use your intelligence to understand dates like "tomorrow 2pm", "next Monday", etc.
-        - Be conversational and smart about gathering missing information
-        - Avoid saying something like  That's a fantastic question! too much.
+        - BOOKING RULES: When user wants appointments, collect truck type, date/time, email
+        - If user provides date/time + email (even without specific truck), respond with: BOOKING_COMPLETE: general consultation|date_time|email
+        - Example: User says "meeting tomorrow 2pm, email@test.com" → Response: BOOKING_COMPLETE: general consultation|tomorrow 2pm|email@test.com
+        - If missing info, ask clearly: "I need: [missing items]. Please provide them."
+        - Keep booking responses short and direct
+        - Don't be overly chatty or ask too many follow-up questions for bookings
         
         Customer: {user_message}
         

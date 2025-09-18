@@ -14,8 +14,8 @@ def search_knowledge(query, max_results=8):
         if any(term in query_normalized for term in ['used', '2nd hand', 'second hand', 'pre-owned']):
             query_normalized += ' used second-hand'
         
-        # Check for contact/dealer/office queries first
-        if any(word in query_normalized for word in ['contact', 'phone', 'email', 'address', 'office', 'location', 'where', 'dealer', 'uk', 'germany', 'france', 'netherlands', 'belgium']):
+        # Check for contact/dealer/office/company info queries first
+        if any(word in query_normalized for word in ['contact', 'phone', 'email', 'address', 'office', 'location', 'where', 'dealer', 'uk', 'germany', 'france', 'netherlands', 'belgium', 'manufacture', 'built', 'vehicles', 'experience', 'employees', 'years', 'company', 'about', 'history']):
             dealer_files = ['Dealer name stx.txt', 'Dealer names AKX.txt', 'dealer names KETTERER copy.txt']
             for dealer_file in dealer_files:
                 try:
@@ -126,14 +126,14 @@ def search_knowledge(query, max_results=8):
         
 
         
-        # Search contact info - prioritize for contact/office queries
-        if any(word in query_normalized for word in ['contact', 'phone', 'email', 'address', 'info', 'office', 'location', 'where']):
+        # Search contact info - prioritize for contact/office/company queries
+        if any(word in query_normalized for word in ['contact', 'phone', 'email', 'address', 'info', 'office', 'location', 'where', 'manufacture', 'built', 'vehicles', 'experience', 'employees', 'years', 'company', 'about', 'history']):
             with open(data_path / "contact.txt", 'r', encoding='utf-8') as f:
                 contact_content = f.read()
                 results.append({
-                    'score': 100,  # High priority for contact queries
+                    'score': 100,  # High priority for company info queries
                     'type': 'contact',
-                    'title': 'Office and Contact Information',
+                    'title': 'Company Information',
                     'content': contact_content
                 })
         else:
@@ -146,7 +146,7 @@ def search_knowledge(query, max_results=8):
                         'score': score,
                         'type': 'contact',
                         'title': 'Contact Information',
-                        'content': 'Sales: Tom Kerkhofs +32 478 44 76 63, Dimitri Engels +32 470 10 13 40'
+                        'content': contact_text
                     })
         
         # Ensure we have trucks for general queries

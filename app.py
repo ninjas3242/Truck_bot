@@ -102,8 +102,11 @@ def main():
     # Main chat interface - use the UI component that handles images
     ui.render_chat_interface(selected_language)
     
-    # Input area
-    user_input, send_clicked, clear_clicked = ui.render_input_area(selected_language)
+    # Check if AI is processing
+    ai_processing = st.session_state.get('ai_processing', False)
+    
+    # Input area - disable if AI is processing
+    user_input, send_clicked, clear_clicked = ui.render_input_area(selected_language, disabled=ai_processing)
     
     # Handle clear chat
     if clear_clicked:
@@ -123,11 +126,14 @@ def main():
                 st.error("❌ Message too long. Please keep it under 500 characters.")
                 return
             
+            # Set AI processing flag IMMEDIATELY to disable input
+            st.session_state.ai_processing = True
+            
             # Add user message to chat immediately
             chat_session.add_message(user_input.strip(), is_user=True)
             app_logger.info(f"User message: {user_input[:50]}...")
             
-            # Rerun to show user message immediately
+            # Rerun to show user message and disabled input immediately
             st.rerun()
             
         except Exception as e:
@@ -140,6 +146,8 @@ def main():
         # Check if last message needs a response
         if len(chat_history) == 1 or not chat_history[-2].is_user:
             try:
+                # AI processing flag already set when message was sent
+                
                 # Show typing indicator
                 typing_placeholder = st.empty()
                 with typing_placeholder:
@@ -150,7 +158,8 @@ def main():
                 chat_session.add_message(bot_response, is_user=False)
                 app_logger.info(f"Bot response generated successfully")
                 
-                # Clear typing indicator and rerun
+                # Clear AI processing flag and typing indicator
+                st.session_state.ai_processing = False
                 typing_placeholder.empty()
                 st.rerun()
                 
@@ -158,6 +167,8 @@ def main():
                 app_logger.error(f"Bot response error: {e}")
                 error_msg = language_manager.get_text("error_message", selected_language)
                 chat_session.add_message(error_msg, is_user=False)
+                # Clear AI processing flag even on error
+                st.session_state.ai_processing = False
                 typing_placeholder.empty()
                 st.rerun()
     

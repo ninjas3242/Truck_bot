@@ -243,11 +243,65 @@ class UIComponents:
         """, unsafe_allow_html=True)
     
     @staticmethod
-    def render_input_area(language: str) -> tuple:
+    def render_input_area(language: str, disabled: bool = False) -> tuple:
         """Render input area with validation and accessibility"""
         st.markdown("---")
         
-        # Chat input with integrated send button
+        # Show input but completely disable it when AI is processing
+        if disabled:
+            # Render the input but make it completely non-functional
+            st.markdown("""
+            <style>
+            /* Completely disable all input interactions */
+            .stChatInput input, [data-testid="stChatInput"] input, 
+            .stChatInput textarea, [data-testid="stChatInput"] textarea {
+                pointer-events: none !important;
+                background-color: #f5f5f5 !important;
+                color: #999 !important;
+                cursor: not-allowed !important;
+                opacity: 0.6 !important;
+            }
+            
+            /* Disable all buttons */
+            .stChatInput button, [data-testid="stChatInput"] button {
+                pointer-events: none !important;
+                opacity: 0.4 !important;
+                cursor: not-allowed !important;
+            }
+            </style>
+            
+            <script>
+            // Disable all input elements with JavaScript
+            setTimeout(function() {
+                const inputs = document.querySelectorAll('input, textarea, button');
+                inputs.forEach(function(input) {
+                    input.disabled = true;
+                    input.readOnly = true;
+                    input.style.pointerEvents = 'none';
+                    input.addEventListener('keydown', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    });
+                    input.addEventListener('input', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return false;
+                    });
+                });
+            }, 100);
+            </script>
+            """, unsafe_allow_html=True)
+            
+            # Still render the chat input but it will be disabled
+            user_input = st.chat_input(
+                placeholder="Stephanie is thinking... Please wait...",
+                key="disabled_chat_input",
+                disabled=True
+            )
+            return "", False, False
+        
+        # Normal input when not disabled
         user_input = st.chat_input(
             placeholder=language_manager.get_text("chat_placeholder", language),
             key="chat_input",

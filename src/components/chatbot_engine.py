@@ -122,9 +122,10 @@ class ChatbotEngine:
                     return "Sorry, there was an error processing your booking. Please try again."
                 
                 if len(parts) >= 3:
-                    truck_type = parts[0].strip()
-                    date_time_str = parts[1].strip()
-                    email = parts[2].strip()
+                    try:
+                        truck_type = parts[0].strip()
+                        date_time_str = parts[1].strip()
+                        email = parts[2].strip()
                     
                     # Store in session for calendar creation AND remember for future bookings
                     st.session_state.booking_data = {

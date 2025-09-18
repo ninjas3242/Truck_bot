@@ -105,17 +105,21 @@ class ChatbotEngine:
             
             # Check if AI completed booking
             if "BOOKING_COMPLETE:" in response:
-                import streamlit as st
-                from ..utils.calendar_service import calendar_service
-                
-                print(f"DEBUG: Detected BOOKING_COMPLETE in response: {response}")
-                
-                # Parse booking data
-                booking_info = response.split("BOOKING_COMPLETE:")[1].strip()
-                parts = booking_info.split("|")
-                
-                print(f"DEBUG: Parsed booking parts: {parts}")
-                print(f"DEBUG: Current date/time: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+                try:
+                    import streamlit as st
+                    from ..utils.calendar_service import calendar_service
+                    
+                    print(f"DEBUG: Detected BOOKING_COMPLETE in response: {response}")
+                    
+                    # Parse booking data
+                    booking_info = response.split("BOOKING_COMPLETE:")[1].strip()
+                    parts = booking_info.split("|")
+                    
+                    print(f"DEBUG: Parsed booking parts: {parts}")
+                    print(f"DEBUG: Current date/time: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+                except Exception as e:
+                    print(f"DEBUG: Error in booking processing: {e}")
+                    return "Sorry, there was an error processing your booking. Please try again."
                 
                 if len(parts) >= 3:
                     truck_type = parts[0].strip()
@@ -213,6 +217,10 @@ class ChatbotEngine:
                     print(f"DEBUG: Final display: {formatted_date}")
                     
                     return f"Perfect! Your appointment is ready:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {formatted_date}\n• **Contact:** {email}\n\nClick below to add this to your Google Calendar:\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to My Calendar</a>\n\nOur team will contact you to confirm details."
+                
+                except Exception as e:
+                    print(f"DEBUG: Error in date parsing: {e}")
+                    return f"I've noted your appointment request. Our sales team will contact you at {parts[2] if len(parts) > 2 else 'your email'} to schedule the appointment. Contact: Tom Kerkhofs +32 478 44 76 63"
             
             return response
         

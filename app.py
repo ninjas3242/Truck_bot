@@ -38,6 +38,30 @@ st.set_page_config(
 def main():
     """Main application function with comprehensive error handling"""
     
+    # Handle OAuth callback first
+    query_params = st.query_params
+    if 'code' in query_params:
+        from src.utils.calendar_service import calendar_service
+        auth_code = query_params['code']
+        access_token = calendar_service.handle_oauth_callback(auth_code)
+        if access_token:
+            # Create the actual calendar event
+            event_created = calendar_service.create_appointment_from_session()
+            if event_created:
+                st.success("✅ Appointment booked successfully! Check your Google Calendar.")
+                # Clear booking data
+                if 'booking_data' in st.session_state:
+                    del st.session_state.booking_data
+                if 'booking_step' in st.session_state:
+                    del st.session_state.booking_step
+            else:
+                st.error("❌ Failed to create calendar event")
+        else:
+            st.error("❌ Failed to connect Google Calendar")
+        # Clear URL parameters
+        st.query_params.clear()
+        st.rerun()
+    
     try:
         # Initialize logging
         app_logger.info("Starting Stephex Horse Trucks Chatbot")

@@ -141,9 +141,12 @@ class AIService:
         - When showing trucks: Name, Image: [url], Features, <a href='[url]'>View Details</a>
         - For pricing questions, always provide contact info: Tom Kerkhofs +32 478 44 76 63 or Dimitri Engels +32 470 10 13 40
         - Use your intelligence to provide the best recommendations
-        - When customer shows interest in visiting, seeing trucks, scheduling meetings, or booking appointments, offer to book an appointment
-        - For appointment requests, use the calendar booking functionality and provide the booking link
-        - Appointment opportunities: "visit showroom", "see trucks", "schedule meeting", "book appointment", "come see", "visit us", "meet in person"
+        - When customer wants to book appointments, be intelligent about collecting: truck type, date/time, email
+        - If user provides complete booking details, respond with: BOOKING_COMPLETE: truck_type|date_time|email
+        - Example: BOOKING_COMPLETE: 2-horse truck|tomorrow 2pm|user@email.com
+        - Use your intelligence to understand dates like "tomorrow 2pm", "next Monday", etc.
+        - Be conversational and smart about gathering missing information
+        - Avoid saying something like  That's a fantastic question! too much.
         
         Customer: {user_message}
         

@@ -86,21 +86,22 @@ class ChatbotEngine:
         has_booking_word = any(word in message_lower for word in booking_indicators)
         has_time_word = any(word in message_lower for word in time_indicators)
         
+        # Let AI handle booking intelligently - no complex state management
         if has_booking_word or has_time_word:
-            from ..utils.calendar_service import calendar_service
-            auth_url = calendar_service.get_auth_url()
-            return f"Excellent! I'd love to help you schedule a visit to see our trucks in person. Click the link below to book your appointment:\n\n<a href='{auth_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Book Your Appointment</a>\n\nThis will connect to your Google Calendar and we'll schedule a personalized consultation where you can see our trucks, discuss your needs, and get expert advice from our team!"
+            # Just pass to AI with special booking context
+            context = {
+                'knowledge_base': self.knowledge_base,
+                'user_message': user_message,
+                'booking_mode': True
+            }
+            return ai_service.generate_response(user_message, context, language)
         
-        # Use AI for everything else including initial booking detection
+        # Use AI for everything else
         context = {
             'knowledge_base': self.knowledge_base,
             'user_message': user_message
         }
         response = ai_service.generate_response(user_message, context, language)
-        
-        # Check if AI detected booking intent
-        if "BOOKING_INTENT:" in response:
-            return response.replace("BOOKING_INTENT: ", "")
         
         return response
 

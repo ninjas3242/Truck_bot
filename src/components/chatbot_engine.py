@@ -89,10 +89,17 @@ class ChatbotEngine:
         # Let AI handle booking intelligently - no complex state management
         if has_booking_word or has_time_word:
             # Just pass to AI with special booking context
+            # Add user memory to context for smart booking
+            import streamlit as st
+            user_email = st.session_state.get('user_email', '')
+            user_prefs = st.session_state.get('user_preferences', {})
+            
             context = {
                 'knowledge_base': self.knowledge_base,
                 'user_message': user_message,
-                'booking_mode': True
+                'booking_mode': True,
+                'user_email': user_email,
+                'user_preferences': user_prefs
             }
             response = ai_service.generate_response(user_message, context, language)
             
@@ -114,10 +121,17 @@ class ChatbotEngine:
                     date_time_str = parts[1].strip()
                     email = parts[2].strip()
                     
-                    # Store in session for calendar creation
+                    # Store in session for calendar creation AND remember for future bookings
                     st.session_state.booking_data = {
                         'truck_type': truck_type,
                         'date_time_str': date_time_str,
+                        'email': email
+                    }
+                    
+                    # Remember user info for future bookings
+                    st.session_state.user_email = email
+                    st.session_state.user_preferences = {
+                        'last_truck_type': truck_type,
                         'email': email
                     }
                     

@@ -142,9 +142,10 @@ class AIService:
         - For pricing questions, always provide contact info: Tom Kerkhofs +32 478 44 76 63 or Dimitri Engels +32 470 10 13 40
         - Use your intelligence to provide the best recommendations
         - BOOKING RULES: When user wants appointments, collect truck type, date/time, email
-        - If user provides date/time + email (even without specific truck), respond with: BOOKING_COMPLETE: general consultation|date_time|email
-        - Example: User says "meeting tomorrow 2pm, email@test.com" → Response: BOOKING_COMPLETE: general consultation|tomorrow 2pm|email@test.com
-        - If missing info, ask clearly: "I need: [missing items]. Please provide them."
+        - SMART MEMORY: If context contains user_email, use it automatically for new bookings
+        - If user provides just date/time and you have their email from context, respond with: BOOKING_COMPLETE: general consultation|date_time|remembered_email
+        - Example: User says "20th at 10am" and context has user_email → Response: BOOKING_COMPLETE: general consultation|20th at 10am|user@email.com
+        - If missing info and no remembered email, ask clearly: "I need: [missing items]. Please provide them."
         - Keep booking responses short and direct
         - Don't be overly chatty or ask too many follow-up questions for bookings
         

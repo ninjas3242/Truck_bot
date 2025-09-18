@@ -373,7 +373,7 @@ class UIComponents:
     def _get_welcome_message(language: str) -> str:
         """Get welcome message in user's language"""
         welcome_messages = {
-            "en": "Hello! I'm Stephanie 😊<br>Your personal assistant at Stephex Horse Trucks. I'm here to help you find the perfect horse truck for your needs. Whether you're looking for new or used trucks, need financing info, or have questions about our company — just ask me anything!",
+            "en": "Hello! I'm Stephanie 😊<br>Your personal assistant at Stephex Horse Trucks. I'm here to help you find the perfect horse truck for your needs. Whether you're looking for new or used trucks or have questions about our company — just ask me anything!",
             
             "es": "¡Hola! Soy Stephanie 😊<br>Tu asistente personal en Stephex Horse Trucks. Estoy aquí para ayudarte a encontrar el camión de caballos perfecto para tus necesidades. Ya sea que busques camiones nuevos o usados, información de financiamiento, o tengas preguntas sobre nuestra empresa — ¡pregúntame lo que quieras!",
             

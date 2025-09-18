@@ -108,6 +108,8 @@ class ChatbotEngine:
                 try:
                     import streamlit as st
                     from ..utils.calendar_service import calendar_service
+                    from datetime import datetime, timedelta
+                    from urllib.parse import quote
                     
                     print(f"DEBUG: Detected BOOKING_COMPLETE in response: {response}")
                     
@@ -116,112 +118,65 @@ class ChatbotEngine:
                     parts = booking_info.split("|")
                     
                     print(f"DEBUG: Parsed booking parts: {parts}")
-                    print(f"DEBUG: Current date/time: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
-                except Exception as e:
-                    print(f"DEBUG: Error in booking processing: {e}")
-                    return "Sorry, there was an error processing your booking. Please try again."
-                
-                if len(parts) >= 3:
-                    try:
+                    
+                    if len(parts) >= 3:
                         truck_type = parts[0].strip()
                         date_time_str = parts[1].strip()
                         email = parts[2].strip()
+                        
+                        # Store in session
+                        st.session_state.booking_data = {
+                            'truck_type': truck_type,
+                            'date_time_str': date_time_str,
+                            'email': email
+                        }
+                        
+                        # Remember user info
+                        st.session_state.user_email = email
+                        
+                        # Parse date
+                        now = datetime.now()
+                        
+                        if 'tomorrow' in date_time_str.lower():
+                            target_date = now + timedelta(days=1)
+                        elif '2 days' in date_time_str.lower():
+                            target_date = now + timedelta(days=2)
+                        elif '20th' in date_time_str.lower() or ' 20 ' in date_time_str:
+                            target_date = now.replace(day=20)
+                            if target_date < now:
+                                if now.month == 12:
+                                    target_date = target_date.replace(year=now.year + 1, month=1)
+                                else:
+                                    target_date = target_date.replace(month=now.month + 1)
+                        else:
+                            target_date = now + timedelta(days=1)
+                        
+                        # Parse time
+                        hour = 14  # default
+                        if '10 am' in date_time_str.lower():
+                            hour = 10
+                        elif '4 pm' in date_time_str.lower():
+                            hour = 16
+                        elif '2 pm' in date_time_str.lower():
+                            hour = 14
+                        
+                        start_time = target_date.replace(hour=hour, minute=0, second=0, microsecond=0)
+                        end_time = start_time + timedelta(hours=1)
+                        
+                        # Create calendar link
+                        title = f"Stephex Horse Trucks - {truck_type}"
+                        details = f"Consultation with Stephex Horse Trucks\nContact: {email}"
+                        location = "Stephex Horse Trucks Showroom"
+                        
+                        calendar_url = f"https://calendar.google.com/calendar/render?action=TEMPLATE&text={quote(title)}&dates={start_time.strftime('%Y%m%dT%H%M%S')}/{end_time.strftime('%Y%m%dT%H%M%S')}&details={quote(details)}&location={quote(location)}"
+                        
+                        formatted_date = start_time.strftime('%B %d, %Y at %I:%M %p')
+                        
+                        return f"Perfect! Your appointment is ready:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {formatted_date}\n• **Contact:** {email}\n\nClick below to add this to your Google Calendar:\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to My Calendar</a>\n\nOur team will contact you to confirm details."
                     
-                    # Store in session for calendar creation AND remember for future bookings
-                    st.session_state.booking_data = {
-                        'truck_type': truck_type,
-                        'date_time_str': date_time_str,
-                        'email': email
-                    }
-                    
-                    # Remember user info for future bookings
-                    st.session_state.user_email = email
-                    st.session_state.user_preferences = {
-                        'last_truck_type': truck_type,
-                        'email': email
-                    }
-                    
-                    print(f"DEBUG: Stored booking data: {st.session_state.booking_data}")
-                    
-                    # Remove OAuth generation
-                    
-                    # Create simple Google Calendar link (no OAuth needed)
-                    from datetime import datetime, timedelta
-                    from urllib.parse import quote
-                    
-                    print(f"DEBUG: Starting date parsing for: '{date_time_str}'")
-                    
-                    # Parse date for calendar link
-                    now = datetime.now()
-                    print(f"DEBUG: Current datetime: {now.strftime('%Y-%m-%d %H:%M')}")
-                    
-                    if 'tomorrow' in date_time_str.lower():
-                        target_date = now + timedelta(days=1)
-                        print(f"DEBUG: Detected 'tomorrow', setting to: {target_date.strftime('%Y-%m-%d')}")
-                    elif '2 days' in date_time_str.lower() or 'two days' in date_time_str.lower():
-                        target_date = now + timedelta(days=2)
-                        print(f"DEBUG: Detected '2 days', setting to: {target_date.strftime('%Y-%m-%d')}")
-                    elif '3 days' in date_time_str.lower() or 'three days' in date_time_str.lower():
-                        target_date = now + timedelta(days=3)
-                    elif '20th' in date_time_str.lower() or '20' in date_time_str:
-                        # For 20th of current month
-                        target_date = now.replace(day=20)
-                        if target_date < now:  # If 20th already passed, next month
-                            if now.month == 12:
-                                target_date = target_date.replace(year=now.year + 1, month=1)
-                            else:
-                                target_date = target_date.replace(month=now.month + 1)
-                    else:
-                        target_date = now + timedelta(days=1)  # default tomorrow
-                    
-                    # Parse time - remove hardcoded default
-                    hour = None
-                    if '1 pm' in date_time_str.lower() or '1pm' in date_time_str.lower():
-                        hour = 13
-                    elif '2 pm' in date_time_str.lower() or '2pm' in date_time_str.lower():
-                        hour = 14
-                    elif '3 pm' in date_time_str.lower() or '3pm' in date_time_str.lower():
-                        hour = 15
-                    elif '4 pm' in date_time_str.lower() or '4pm' in date_time_str.lower():
-                        hour = 16
-                    elif '5 pm' in date_time_str.lower() or '5pm' in date_time_str.lower():
-                        hour = 17
-                    elif '9 am' in date_time_str.lower() or '9am' in date_time_str.lower():
-                        hour = 9
-                    elif '10 am' in date_time_str.lower() or '10am' in date_time_str.lower():
-                        hour = 10
-                    elif '11 am' in date_time_str.lower() or '11am' in date_time_str.lower():
-                        hour = 11
-                    elif '12 pm' in date_time_str.lower() or '12pm' in date_time_str.lower():
-                        hour = 12
-                    
-                    if hour is None:
-                        hour = 14  # only default if no time found
-                    
-                    print(f"DEBUG: Time parsing - Input: '{date_time_str}', Extracted hour: {hour}")
-                    
-                    start_time = target_date.replace(hour=hour, minute=0, second=0, microsecond=0)
-                    print(f"DEBUG: Final parsed datetime: {start_time.strftime('%Y-%m-%d %H:%M')}")
-                    
-                    end_time = start_time + timedelta(hours=1)
-                    
-                    print(f"DEBUG: Calendar will show: {start_time.strftime('%B %d, %Y at %I:%M %p')}")
-                    
-                    # Create Google Calendar link that auto-fills user's calendar
-                    title = f"Stephex Horse Trucks - {truck_type}"
-                    details = f"Consultation with Stephex Horse Trucks\nContact: {email}\nSales: Tom Kerkhofs +32 478 44 76 63 or Dimitri Engels +32 470 10 13 40"
-                    location = "Stephex Horse Trucks Showroom"
-                    
-                    calendar_url = f"https://calendar.google.com/calendar/render?action=TEMPLATE&text={quote(title)}&dates={start_time.strftime('%Y%m%dT%H%M%S')}/{end_time.strftime('%Y%m%dT%H%M%S')}&details={quote(details)}&location={quote(location)}"
-                    
-                    formatted_date = start_time.strftime('%B %d, %Y at %I:%M %p')
-                    print(f"DEBUG: Final display: {formatted_date}")
-                    
-                    return f"Perfect! Your appointment is ready:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {formatted_date}\n• **Contact:** {email}\n\nClick below to add this to your Google Calendar:\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to My Calendar</a>\n\nOur team will contact you to confirm details."
-                
                 except Exception as e:
-                    print(f"DEBUG: Error in date parsing: {e}")
-                    return f"I've noted your appointment request. Our sales team will contact you at {parts[2] if len(parts) > 2 else 'your email'} to schedule the appointment. Contact: Tom Kerkhofs +32 478 44 76 63"
+                    print(f"DEBUG: Error in booking: {e}")
+                    return "Sorry, there was an error processing your booking. Please try again."
             
             return response
         

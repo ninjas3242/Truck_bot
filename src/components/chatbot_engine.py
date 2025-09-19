@@ -90,16 +90,30 @@ class ChatbotEngine:
         if has_booking_word or has_time_word:
             # Just pass to AI with special booking context
             # Add user memory to context for smart booking
-            import streamlit as st
-            user_email = st.session_state.get('user_email', '')
-            user_prefs = st.session_state.get('user_preferences', {})
+            try:
+                import streamlit as st
+                user_email = st.session_state.get('user_email', '')
+                user_prefs = st.session_state.get('user_preferences', {})
+                chat_history = st.session_state.get('chat_history', [])
+            except:
+                user_email = ''
+                user_prefs = {}
+                chat_history = []
+            
+            # Format conversation history for context
+            conversation_context = ""
+            if chat_history:
+                for msg in chat_history[-6:]:  # Last 6 messages for context
+                    role = "User" if msg.is_user else "Stephanie"
+                    conversation_context += f"{role}: {msg.content}\n"
             
             context = {
                 'knowledge_base': self.knowledge_base,
                 'user_message': user_message,
                 'booking_mode': True,
                 'user_email': user_email,
-                'user_preferences': user_prefs
+                'user_preferences': user_prefs,
+                'conversation_history': conversation_context
             }
             response = ai_service.generate_response(user_message, context, language)
             
@@ -181,9 +195,20 @@ class ChatbotEngine:
             return response
         
         # Use AI for everything else
+        import streamlit as st
+        chat_history = st.session_state.get('chat_history', [])
+        
+        # Format conversation history for context
+        conversation_context = ""
+        if chat_history:
+            for msg in chat_history[-6:]:  # Last 6 messages for context
+                role = "User" if msg.is_user else "Stephanie"
+                conversation_context += f"{role}: {msg.content}\n"
+        
         context = {
             'knowledge_base': self.knowledge_base,
-            'user_message': user_message
+            'user_message': user_message,
+            'conversation_history': conversation_context
         }
         response = ai_service.generate_response(user_message, context, language)
         

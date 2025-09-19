@@ -63,12 +63,12 @@ class Settings(BaseSettings):
     temperature: float = 0.7
     
     # Chat Configuration
-    max_chat_history: int = 50
-    typing_delay: float = 0.5
+    max_chat_history: int = 5000
+    typing_delay: float = 0.1
     
     # Cache Configuration
     cache_ttl: int = 300  # 5 minutes
-    max_cache_size: int = 500
+    max_cache_size: int = 5000
     
     class Config:
         env_file = ".env"

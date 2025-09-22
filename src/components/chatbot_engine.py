@@ -119,6 +119,9 @@ class ChatbotEngine:
             }
             response = ai_service.generate_response(user_message, context, language)
             
+            # Debug: Print AI response to see what it's generating
+            print(f"DEBUG: AI Response: {response[:200]}...")
+            
             # Check if AI completed booking
             if "BOOKING_COMPLETE:" in response:
                 try:
@@ -167,14 +170,20 @@ class ChatbotEngine:
                         else:
                             target_date = now + timedelta(days=1)
                         
-                        # Parse time
+                        # Parse time from user input
                         hour = 14  # default
-                        if '10 am' in date_time_str.lower():
+                        if '4 am' in date_time_str.lower() or '4am' in date_time_str.lower():
+                            hour = 4
+                        elif '10 am' in date_time_str.lower() or '10am' in date_time_str.lower():
                             hour = 10
-                        elif '4 pm' in date_time_str.lower():
-                            hour = 16
-                        elif '2 pm' in date_time_str.lower():
+                        elif '1 pm' in date_time_str.lower() or '1pm' in date_time_str.lower():
+                            hour = 13
+                        elif '2 pm' in date_time_str.lower() or '2pm' in date_time_str.lower():
                             hour = 14
+                        elif '3 pm' in date_time_str.lower() or '3pm' in date_time_str.lower():
+                            hour = 15
+                        elif '4 pm' in date_time_str.lower() or '4pm' in date_time_str.lower():
+                            hour = 16
                         
                         start_time = target_date.replace(hour=hour, minute=0, second=0, microsecond=0)
                         end_time = start_time + timedelta(hours=1)
@@ -188,7 +197,10 @@ class ChatbotEngine:
                         
                         formatted_date = start_time.strftime('%B %d, %Y at %I:%M %p')
                         
-                        return f"Perfect! Your appointment is updated:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {formatted_date}\n• **Contact:** {email}\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to Google Calendar</a>\n\nOur team will contact you to confirm details."
+                        # Return only the part before BOOKING_COMPLETE
+                        ai_response_part = response.split("BOOKING_COMPLETE:")[0].strip()
+                        
+                        return f"{ai_response_part}\n\nPerfect! Your appointment is ready:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {formatted_date}\n• **Contact:** {email}\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to Google Calendar</a>\n\nOur team will contact you to confirm details."
                     
                 except Exception as e:
                     print(f"DEBUG: Error in booking: {e}")

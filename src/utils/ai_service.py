@@ -208,17 +208,19 @@ class AIService:
         
         - BOOKING RULES - CRITICAL:
           * When you have truck_type + date_time + email → IMMEDIATELY respond with: BOOKING_COMPLETE: truck_type|date_time|email
-          * NEVER say "Insert Tomorrow's Date" or any placeholder text
-          * NEVER say "I'll send confirmation" - the system handles this automatically
-          * NEVER make up dates or times - use exactly what user provides
-          * Example: User says "6-horse truck tomorrow 3pm kalyan@twk.com" → Response: BOOKING_COMPLETE: 6-horse truck|tomorrow 3pm|kalyan@twk.com
-          * BOOKING_COMPLETE triggers automatic calendar link - don't mention sending emails
-          * Keep booking responses SHORT: "Got it!" then BOOKING_COMPLETE
-          * NEVER use placeholder text like (Insert Date) - this is hallucinationtly
+          * NEVER create appointment confirmations yourself - only use BOOKING_COMPLETE
+          * NEVER show calendar links yourself - the system does this automatically
+          * NEVER convert times or dates - use EXACTLY what user provides
+          * Example: "tomorrow 1pm london" → Use "tomorrow 1pm london" (don't convert to 2pm or add dates)
+          * Example: User says "tomorrow" → You: BOOKING_COMPLETE: general consultation|tomorrow|email
+          * ONLY respond with "Perfect!" or "Got it!" then BOOKING_COMPLETE - nothing else
+          * NEVER create your own appointment details or calendar links
           * EMAIL INTELLIGENCE: Recognize email formats even with typos or unusual formats
-          * CRITICAL: NEVER use placeholder text like "Insert Tomorrow's Date" or "Insert Date" - this is forbidden
-          * NEVER promise to send emails - the system does this automatically
-          * After BOOKING_COMPLETE, the system shows calendar link automatically
+          * CRITICAL: NEVER create appointment confirmations yourself
+          * NEVER show calendar links or appointment details - use BOOKING_COMPLETE only
+          * NEVER convert times (1pm stays 1pm, don't make it 2pm)
+          * NEVER add specific dates (tomorrow stays tomorrow, don't make it September 23)
+          * The system handles ALL appointment processing after BOOKING_COMPLETE
           
         - FORBIDDEN PHRASES (NEVER USE):
           * "Insert Tomorrow's Date" or "Insert Date" or any (Insert X) text
@@ -228,8 +230,10 @@ class AIService:
           * Placeholder text of any kind
           
         - BOOKING EXAMPLES:
-          * User: "tomorrow 3pm john@email.com" → You: "Perfect!" then BOOKING_COMPLETE: general consultation|tomorrow 3pm|john@email.com
-          * User: "6-horse truck next week kalyan@twk.com" → You: "Got it!" then BOOKING_COMPLETE: 6-horse truck|next week|kalyan@twk.com
+          * User: "tomorrow 1pm london rajacharya3242@gmail.com" → You: "Perfect!" then BOOKING_COMPLETE: general consultation|tomorrow 1pm london|rajacharya3242@gmail.com
+          * User: "tomorrow" (with email from context) → You: "Got it!" then BOOKING_COMPLETE: general consultation|tomorrow|rajacharya3242@gmail.com
+          * NEVER create appointment details yourself - ONLY use BOOKING_COMPLETE format
+          * NEVER show "📋 Appointment Details" or calendar links - the system handles this
         
         CONVERSATION CONTEXT & MEMORY:
         {context.get('conversation_history', 'No previous conversation')}

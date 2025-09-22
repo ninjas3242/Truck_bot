@@ -88,60 +88,45 @@ class ChatbotEngine:
         has_time_word = any(word in message_lower for word in time_indicators)
         has_email = any(word in message_lower for word in email_indicators)
         
-        # Let AI handle booking intelligently - no complex state management
-        if has_booking_word or has_time_word or has_email:
-            # Just pass to AI with special booking context
-            # Add user memory to context for smart booking
-            try:
-                import streamlit as st
-                user_email = st.session_state.get('user_email', '')
-                user_prefs = st.session_state.get('user_preferences', {})
-                chat_history = st.session_state.get('chat_history', [])
-            except:
-                user_email = ''
-                user_prefs = {}
-                chat_history = []
+        # Direct booking detection - bypass AI for booking
+        if has_booking_word and (has_time_word or has_email):
+            import re
             
-            # Format conversation history for context
-            conversation_context = ""
-            if chat_history:
-                for msg in chat_history[-6:]:  # Last 6 messages for context
-                    role = "User" if msg.is_user else "Stephanie"
-                    conversation_context += f"{role}: {msg.content}\n"
+            # Extract email
+            email_match = re.search(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}', user_message)
+            email = email_match.group() if email_match else ''
             
-            context = {
-                'knowledge_base': self.knowledge_base,
-                'user_message': user_message,
-                'booking_mode': True,
-                'user_email': user_email,
-                'user_preferences': user_prefs,
-                'conversation_history': conversation_context
-            }
-            response = ai_service.generate_response(user_message, context, language)
+            # Extract time info
+            time_info = ''
+            if 'tomorrow' in message_lower:
+                time_info = 'tomorrow'
+            elif 'today' in message_lower:
+                time_info = 'today'
+            elif 'next week' in message_lower:
+                time_info = 'next week'
             
-            # Debug: Print AI response to see what it's generating
-            print(f"DEBUG: AI Response: {response[:200]}...")
+            # Extract specific time
+            time_match = re.search(r'(\d{1,2})\s*(am|pm)', message_lower)
+            if time_match:
+                time_info += f' {time_match.group()}'
             
-            # Check if AI completed booking
-            if "BOOKING_COMPLETE:" in response:
+            # Extract location/timezone
+            if 'london' in message_lower:
+                time_info += ' london'
+            
+            print(f"DEBUG: Direct booking - Email: {email}, Time: {time_info}")
+            
+            # If we have enough info, create booking directly
+            if email and time_info:
                 try:
                     import streamlit as st
-                    from ..utils.calendar_service import calendar_service
                     from datetime import datetime, timedelta
                     from urllib.parse import quote
                     
-                    print(f"DEBUG: Detected BOOKING_COMPLETE in response: {response}")
+                    print(f"DEBUG: Direct booking processing - Email: {email}, Time: {time_info}")
                     
-                    # Parse booking data
-                    booking_info = response.split("BOOKING_COMPLETE:")[1].strip()
-                    parts = booking_info.split("|")
-                    
-                    print(f"DEBUG: Parsed booking parts: {parts}")
-                    
-                    if len(parts) >= 3:
-                        truck_type = parts[0].strip()
-                        date_time_str = parts[1].strip()
-                        email = parts[2].strip()
+                    truck_type = 'general consultation'
+                    date_time_str = time_info
                         
                         # Store in session
                         st.session_state.booking_data = {
@@ -170,20 +155,44 @@ class ChatbotEngine:
                         else:
                             target_date = now + timedelta(days=1)
                         
-                        # Parse time from user input
-                        hour = 14  # default
-                        if '4 am' in date_time_str.lower() or '4am' in date_time_str.lower():
-                            hour = 4
-                        elif '10 am' in date_time_str.lower() or '10am' in date_time_str.lower():
-                            hour = 10
-                        elif '1 pm' in date_time_str.lower() or '1pm' in date_time_str.lower():
-                            hour = 13
-                        elif '2 pm' in date_time_str.lower() or '2pm' in date_time_str.lower():
-                            hour = 14
-                        elif '3 pm' in date_time_str.lower() or '3pm' in date_time_str.lower():
-                            hour = 15
-                        elif '4 pm' in date_time_str.lower() or '4pm' in date_time_str.lower():
-                            hour = 16
+                    # Parse time from user input
+                    hour = 14  # default
+                    if '1 am' in date_time_str.lower():
+                        hour = 1
+                    elif '2 am' in date_time_str.lower():
+                        hour = 2
+                    elif '3 am' in date_time_str.lower():
+                        hour = 3
+                    elif '4 am' in date_time_str.lower():
+                        hour = 4
+                    elif '5 am' in date_time_str.lower():
+                        hour = 5
+                    elif '6 am' in date_time_str.lower():
+                        hour = 6
+                    elif '7 am' in date_time_str.lower():
+                        hour = 7
+                    elif '8 am' in date_time_str.lower():
+                        hour = 8
+                    elif '9 am' in date_time_str.lower():
+                        hour = 9
+                    elif '10 am' in date_time_str.lower():
+                        hour = 10
+                    elif '11 am' in date_time_str.lower():
+                        hour = 11
+                    elif '12 pm' in date_time_str.lower():
+                        hour = 12
+                    elif '1 pm' in date_time_str.lower():
+                        hour = 13
+                    elif '2 pm' in date_time_str.lower():
+                        hour = 14
+                    elif '3 pm' in date_time_str.lower():
+                        hour = 15
+                    elif '4 pm' in date_time_str.lower():
+                        hour = 16
+                    elif '5 pm' in date_time_str.lower():
+                        hour = 17
+                    elif '6 pm' in date_time_str.lower():
+                        hour = 18
                         
                         start_time = target_date.replace(hour=hour, minute=0, second=0, microsecond=0)
                         end_time = start_time + timedelta(hours=1)
@@ -197,16 +206,46 @@ class ChatbotEngine:
                         
                         formatted_date = start_time.strftime('%B %d, %Y at %I:%M %p')
                         
-                        # Return only the part before BOOKING_COMPLETE
-                        ai_response_part = response.split("BOOKING_COMPLETE:")[0].strip()
-                        
-                        return f"{ai_response_part}\n\nPerfect! Your appointment is ready:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {formatted_date}\n• **Contact:** {email}\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to Google Calendar</a>\n\nOur team will contact you to confirm details."
+                    return f"Perfect! Your appointment is ready:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {formatted_date}\n• **Contact:** {email}\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to Google Calendar</a>\n\nOur team will contact you to confirm details."
                     
                 except Exception as e:
                     print(f"DEBUG: Error in booking: {e}")
                     return "Sorry, there was an error processing your booking. Please try again."
             
-            return response
+            # If missing info, ask for it
+            if not email:
+                return "I'd be happy to book an appointment! What's your email address?"
+            if not time_info:
+                return "What date and time works for you?"
+        
+        # For non-booking queries, use AI
+        if has_booking_word or has_time_word or has_email:
+            # Pass to AI for booking-related questions that aren't complete bookings
+            try:
+                import streamlit as st
+                user_email = st.session_state.get('user_email', '')
+                user_prefs = st.session_state.get('user_preferences', {})
+                chat_history = st.session_state.get('chat_history', [])
+            except:
+                user_email = ''
+                user_prefs = {}
+                chat_history = []
+            
+            conversation_context = ""
+            if chat_history:
+                for msg in chat_history[-6:]:
+                    role = "User" if msg.is_user else "Stephanie"
+                    conversation_context += f"{role}: {msg.content}\n"
+            
+            context = {
+                'knowledge_base': self.knowledge_base,
+                'user_message': user_message,
+                'booking_mode': True,
+                'user_email': user_email,
+                'user_preferences': user_prefs,
+                'conversation_history': conversation_context
+            }
+            return ai_service.generate_response(user_message, context, language)
         
         # Use AI for everything else
         import streamlit as st

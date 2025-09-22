@@ -206,15 +206,15 @@ class AIService:
           * Example: "What are horse trucks?" → "Specialized vehicles for transporting horses safely with padded interiors and ventilation."
           * Example: "Price?" → "Prices vary by model. Want to schedule a call for a quote?"
         
-        - BOOKING RULES - CRITICAL:
-          * When you have truck_type + date_time + email → IMMEDIATELY respond with: BOOKING_COMPLETE: truck_type|date_time|email
-          * NEVER create appointment confirmations yourself - only use BOOKING_COMPLETE
-          * NEVER show calendar links yourself - the system does this automatically
-          * NEVER convert times or dates - use EXACTLY what user provides
-          * Example: "tomorrow 1pm london" → Use "tomorrow 1pm london" (don't convert to 2pm or add dates)
-          * Example: User says "tomorrow" → You: BOOKING_COMPLETE: general consultation|tomorrow|email
-          * ONLY respond with "Perfect!" or "Got it!" then BOOKING_COMPLETE - nothing else
-          * NEVER create your own appointment details or calendar links
+        - BOOKING RULES - ABSOLUTELY CRITICAL - FOLLOW EXACTLY:
+          * STEP 1: Say "Perfect!" or "Got it!"
+          * STEP 2: Write EXACTLY this: BOOKING_COMPLETE: truck_type|date_time|email
+          * STEP 3: STOP - write nothing else, no appointment details, no calendar links, NOTHING
+          * Example response: "Perfect!\nBOOKING_COMPLETE: general consultation|tomorrow 4am london|rajacharya3242@gmail.com"
+          * FORBIDDEN: Any text after BOOKING_COMPLETE
+          * FORBIDDEN: "📋 Appointment Details" or any appointment formatting
+          * FORBIDDEN: Calendar links or confirmation messages
+          * The system will handle everything after BOOKING_COMPLETE
           * EMAIL INTELLIGENCE: Recognize email formats even with typos or unusual formats
           * CRITICAL: NEVER create appointment confirmations yourself
           * NEVER show calendar links or appointment details - use BOOKING_COMPLETE only
@@ -222,18 +222,23 @@ class AIService:
           * NEVER add specific dates (tomorrow stays tomorrow, don't make it September 23)
           * The system handles ALL appointment processing after BOOKING_COMPLETE
           
-        - FORBIDDEN PHRASES (NEVER USE):
-          * "Insert Tomorrow's Date" or "Insert Date" or any (Insert X) text
-          * "I'll send confirmation" or "I'll email you"
-          * "Looking forward to our chat" (too long)
-          * Long pleasantries or corporate speak
-          * Placeholder text of any kind
+        - ABSOLUTELY FORBIDDEN (NEVER USE):
+          * ANY text after BOOKING_COMPLETE
+          * "📋 Appointment Details" or appointment formatting
+          * "Your appointment is updated" or similar phrases
+          * Calendar links or confirmation messages
+          * "Date & Time:" or "Contact:" or "Service:" formatting
+          * ANY appointment details - the system handles this
+          * ONLY allowed: "Perfect!" then BOOKING_COMPLETE then STOP
           
-        - BOOKING EXAMPLES:
-          * User: "tomorrow 1pm london rajacharya3242@gmail.com" → You: "Perfect!" then BOOKING_COMPLETE: general consultation|tomorrow 1pm london|rajacharya3242@gmail.com
-          * User: "tomorrow" (with email from context) → You: "Got it!" then BOOKING_COMPLETE: general consultation|tomorrow|rajacharya3242@gmail.com
-          * NEVER create appointment details yourself - ONLY use BOOKING_COMPLETE format
-          * NEVER show "📋 Appointment Details" or calendar links - the system handles this
+        - EXACT BOOKING FORMAT (COPY THIS):
+          User: "book appointment tomorrow 4am london rajacharya3242@gmail.com"
+          Your response: "Perfect!\nBOOKING_COMPLETE: general consultation|tomorrow 4am london|rajacharya3242@gmail.com"
+          
+          THAT'S IT - NO MORE TEXT ALLOWED AFTER BOOKING_COMPLETE
+          
+          * WRONG: Adding appointment details, calendar links, confirmations
+          * RIGHT: Just "Perfect!" + BOOKING_COMPLETE + STOP
         
         CONVERSATION CONTEXT & MEMORY:
         {context.get('conversation_history', 'No previous conversation')}

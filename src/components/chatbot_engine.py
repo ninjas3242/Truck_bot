@@ -73,7 +73,7 @@ class ChatbotEngine:
         
         # Handle greetings
         if any(word in user_message.lower() for word in ["hi", "hello", "hey"]) and len(user_message.split()) <= 2:
-            return "👋 Welcome to Stephex Horse Trucks! I'm your AI assistant specializing in premium horse transportation solutions. I can help you find the perfect truck, and answer any questions about our inventory. What can I assist you with today?"
+            return "👋 Welcome to Stephex Horse Trucks! I'm your AI assistant specializing in premium horse transportation solutions. I can help you find the perfect truck, What can I assist you with today?"
         
         # Enhanced appointment booking detection
         booking_indicators = [
@@ -81,13 +81,15 @@ class ChatbotEngine:
             'showroom', 'come see', 'meet', 'consultation', 'demo', 'test drive'
         ]
         time_indicators = ['tomorrow', 'today', 'next week', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'pm', 'am']
+        email_indicators = ['@', '.com', '.org', '.net', 'gmail', 'email']
         
         message_lower = user_message.lower()
         has_booking_word = any(word in message_lower for word in booking_indicators)
         has_time_word = any(word in message_lower for word in time_indicators)
+        has_email = any(word in message_lower for word in email_indicators)
         
         # Let AI handle booking intelligently - no complex state management
-        if has_booking_word or has_time_word:
+        if has_booking_word or has_time_word or has_email:
             # Just pass to AI with special booking context
             # Add user memory to context for smart booking
             try:
@@ -186,7 +188,7 @@ class ChatbotEngine:
                         
                         formatted_date = start_time.strftime('%B %d, %Y at %I:%M %p')
                         
-                        return f"Perfect! Your appointment is ready:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {formatted_date}\n• **Contact:** {email}\n\nClick below to add this to your Google Calendar:\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to My Calendar</a>\n\nOur team will contact you to confirm details."
+                        return f"Perfect! Your appointment is updated:\n\n📋 **Appointment Details:**\n• **Service:** {truck_type}\n• **Date & Time:** {formatted_date}\n• **Contact:** {email}\n\n<a href='{calendar_url}' target='_blank' style='background: #007bff; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;'>📅 Add to Google Calendar</a>\n\nOur team will contact you to confirm details."
                     
                 except Exception as e:
                     print(f"DEBUG: Error in booking: {e}")

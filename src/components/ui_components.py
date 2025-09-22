@@ -407,7 +407,7 @@ class UIComponents:
             img_tag = f'<br><img src="{img_url.strip()}" style="max-width: 350px; border-radius: 8px; margin: 10px 0;" onerror="this.style.display=\'none\'"><br>'
             processed_content = processed_content.replace(f'Image: {img_url}', img_tag)
         
-        # Render everything in one chat bubble
+        # Render everything in one chat bubble with word wrapping
         st.markdown(f"""
         <div style="
             background: linear-gradient(135deg, #ffffff, #f8fafc);
@@ -418,6 +418,8 @@ class UIComponents:
             border-left: 4px solid #00d4aa;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
             max-width: 75%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         ">
             <strong>🤖 Stephanie :</strong> {processed_content.replace(chr(10), '<br>')}
         </div>
@@ -427,7 +429,7 @@ class UIComponents:
     def _get_welcome_message(language: str) -> str:
         """Get welcome message in user's language"""
         welcome_messages = {
-            "en": "Hello! I'm Stephanie 😊<br>Your personal assistant at Stephex Horse Trucks. I'm here to help you find the perfect horse truck for your needs. Whether you're looking for new or used trucks or have questions about our company — just ask me anything!",
+            "en": "Hello! I'm Stephanie 😊<br>Your personal assistant at Stephex Horse Trucks, here to help you find the perfect horse truck for your needs.",
             
             "es": "¡Hola! Soy Stephanie 😊<br>Tu asistente personal en Stephex Horse Trucks. Estoy aquí para ayudarte a encontrar el camión de caballos perfecto para tus necesidades. Ya sea que busques camiones nuevos o usados, información de financiamiento, o tengas preguntas sobre nuestra empresa — ¡pregúntame lo que quieras!",
             
